@@ -1,3 +1,10 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+media
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
