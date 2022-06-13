@@ -14,8 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('plpPool.urls', namespace='monitor')),
 ]
+
+admin.site.site_header = 'plpPoolWeb'
+admin.site.index_title = 'plpPoolWeb Admin'
+admin.site.site_title = 'Seja bem vindo ao plpPoolWeb'
