@@ -10,14 +10,10 @@ class CustomUserCreationForm(UserCreationForm):
         fields = [
             'username',
             'email',
-            'first_name',
-            'last_name',
         ]
         labels = {
-            'username':'Nome do usuário',
+            'username':'Nome',
             'email':'Email',
-            'first_name':'Primeiro nome',
-            'last_name':'Sobrenome'
         }
         field_classes = {"username": UsernameField}
 
@@ -28,12 +24,8 @@ class UserForm(forms.ModelForm):
         fields = [
             'username',
             'email',
-            'first_name',
-            'last_name',
         ]
         labels = {
-            'username':'Nome do usuário',
+            'username':'Nome',
             'email':'Email',
-            'first_name':'Primeiro nome',
-            'last_name':'Sobrenome'
         }

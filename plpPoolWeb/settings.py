@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     # apps externos
     'crispy_forms',
     'crispy_tailwind',
+    'more_admin_filters',
     "debug_toolbar", # Deve ser o ultimo
 ]
 
