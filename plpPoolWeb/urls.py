@@ -16,10 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.contrib.auth.views import (
+    LoginView, 
+    LogoutView, 
+    PasswordResetView, 
+    PasswordResetDoneView, 
+    PasswordResetConfirmView, 
+    PasswordResetCompleteView
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('plpPool.urls', namespace='monitor')),
+
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('reset-password/', PasswordResetView.as_view(), name='reset_password'),
+    path('password-reset-done/', PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset-complete/', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
 
 if (settings.DEBUG):
@@ -27,6 +42,6 @@ if (settings.DEBUG):
         path('__debug__/', include('debug_toolbar.urls')),
     ] + urlpatterns
 
-admin.site.site_header = 'plpPoolWeb'
-admin.site.index_title = 'plpPoolWeb Admin'
-admin.site.site_title = 'Seja bem vindo ao plpPoolWeb'
+admin.site.site_header = 'plpPoolWeb Admin'
+admin.site.index_title = 'plpPoolWeb'
+admin.site.site_title = 'Admin'

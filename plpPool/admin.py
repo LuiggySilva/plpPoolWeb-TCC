@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django_admin_multiple_choice_list_filter.list_filters import MultipleChoiceListFilter
-
 from .models import (
     User, 
     Monitor,
@@ -9,12 +8,15 @@ from .models import (
     Questao,
     Linguagem,
     Periodo,
-    Atividade
+    Atividade,
+    Teste
 )
+from .forms import QuestaoForm, PeriodoForm
 
-# Register your models here.
+class TesteInline(admin.StackedInline):
+    model = Teste
+    extra = 0
 
-# admin.site.register(User)
 
 @admin.register(Linguagem)
 class LinguagemAdmin(admin.ModelAdmin):
@@ -38,7 +40,9 @@ class TagsListFilter(MultipleChoiceListFilter):
 
     def queryset(self, request, queryset):
         if request.GET.get(self.parameter_name):
-            kwargs = {self.parameter_name: request.GET[self.parameter_name].split(',')}
+            kwargs = {
+                self.parameter_name: request.GET[self.parameter_name].split(',')
+            }
             pks = [int(n) for n in request.GET[self.parameter_name].split(',')]
             for tag_pk in pks:
                 queryset = queryset.filter(tags__pk=tag_pk)
@@ -52,7 +56,17 @@ class MonitorAdmin(admin.ModelAdmin):
         ('Dados', {'fields': ('username', 'email', 'matricula', 'is_active')}),
     )
     list_display = ('username', 'email', 'matricula', 'is_active')
-    exclude = ('password','last_login','is_superuser','groups','user_permissions','first_name','last_name','is_staff', 'slug')
+    exclude = (
+        'password',
+        'last_login',
+        'is_superuser',
+        'groups',
+        'user_permissions',
+        'first_name',
+        'last_name',
+        'is_staff', 
+        'slug'
+    )
 
 
 @admin.register(Professor)
@@ -62,18 +76,58 @@ class ProfessorAdmin(admin.ModelAdmin):
         ('Dados', {'fields': ('username', 'email')}),
     )
     list_display = ('username', 'email')
-    exclude = ('last_login','is_superuser','groups','user_permissions','first_name','last_name','is_staff', 'slug')
+    exclude = (
+        'last_login',
+        'is_superuser',
+        'groups',
+        'user_permissions',
+        'first_name',
+        'last_name',
+        'is_staff', 
+        'slug'
+    )
+
+
+class PeriodoListFilter(MultipleChoiceListFilter):
+    title = 'Periodo'
+    parameter_name = 'periodo__nome'
+
+    def lookups(self, request, model_admin):
+        return Periodo.objects.values_list('pk', 'nome')
+
+    def queryset(self, request, queryset):
+        if request.GET.get(self.parameter_name):
+            kwargs = {
+                self.parameter_name: request.GET[self.parameter_name].split(',')
+            }
+            pks = [int(n) for n in request.GET[self.parameter_name].split(',')]
+            for periodo_pk in pks:
+                queryset = queryset.filter(periodo__pk=periodo_pk)
+        return queryset.distinct()
 
 
 @admin.register(Questao)
 class QuestaoAdmin(admin.ModelAdmin):
     search_fields = ('enunciado', 'autor__email', 'autor__username')
     fieldsets = (
-        ('Dados', {'fields': ('enunciado', 'tags', 'autor')}),
+        ('Dados', {
+            'fields': 
+                (
+                    'enunciado', 
+                    'descricao', 
+                    'codigo',
+                    'tags', 
+                    'linguagem',
+                    'autor',
+                    'periodo'
+                )
+            }
+        ),
     )
     filter_horizontal = ['tags', ]
-    list_display = ('enunciado', 'autor')
-    list_filter = (TagsListFilter, )
+    inlines = (TesteInline,)
+    list_display = ('enunciado', 'autor', 'linguagem', 'periodo')
+    list_filter = (TagsListFilter, 'periodo__nome')
 
 
 @admin.register(Atividade)
@@ -81,8 +135,7 @@ class AtividadeAdmin(admin.ModelAdmin):
     search_fields = ('assunto',)
     fieldsets = (
         ('Dados', {
-            'fields': (
-                'assunto', 
+            'fields': ( 
                 'data', 
                 'descricao', 
                 'qtd_basicas', 
@@ -92,11 +145,11 @@ class AtividadeAdmin(admin.ModelAdmin):
             )
         }),
     )
-    list_display = ('assunto', 'data',)
+    list_display = ('data', 'periodo')
 
 class AtividadeInline(admin.StackedInline):
     model = Atividade
-    extra = 1
+    extra = 0
 
 
 @admin.register(Periodo)
@@ -110,4 +163,5 @@ class PeriodoAdmin(admin.ModelAdmin):
     filter_horizontal = ['monitores',]
     inlines = (AtividadeInline,)
     list_display = ('nome', 'ativo')
- 
+    ordering = ['-ativo', '-nome']
+    form = PeriodoForm

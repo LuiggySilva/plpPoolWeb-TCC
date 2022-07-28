@@ -17,7 +17,6 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -36,14 +35,11 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'plpPool.User'
 
-LOGIN_REDIRECT_URL='/'
-LOGOUT_REDIRECT_URL='/'
+LOGIN_REDIRECT_URL='monitor:pagina_inicial'
+LOGOUT_REDIRECT_URL='/login'
 SIGNUP_REDIRECT_URL='/login'
 LOGIN_URL='/login'
-
-CRISPY_ALLOWED_TEMPLATE_PACKS='tailwind'
-CRISPY_TEMPLATE_PACK='tailwind'
-
+'''
 EMAIL_HOST = config('EMAIL_HOST', cast=str) 
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str)
@@ -51,6 +47,8 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str)
 EMAIL_USE_TLS = True
 
 SERVER_EMAIL = config('SERVER_EMAIL', cast=str)
+'''
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Application definition
 
@@ -64,8 +62,7 @@ INSTALLED_APPS = [
     # apps internos
     'plpPool',
     # apps externos
-    'crispy_forms',
-    'crispy_tailwind',
+    'django_filters',
     "debug_toolbar", # Deve ser o ultimo
 ]
 
@@ -153,10 +150,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 STATIC_URL = '/static/'
+MEDIA_URL = ""
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 django_on_heroku.settings(locals())

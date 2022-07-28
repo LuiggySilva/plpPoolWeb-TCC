@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} plpPoolWeb | Todas questões {% endblock title %}
+
+{% block branding %} <h1 class="site-name"> plpPoolWeb </h1> {% endblock %}
+
+{% block usertools %}
+{% include "session_options.html" %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block menu_filtro %}
+<div id="left-menu">
+    <div id="menu-content" style="display: none;">
+        <h2> Filtrar questões: </h2>
+        <form method="get">
+            {{questao_filter.form.as_p}}
+            <center><button type="submit" class="bnt-submit" id="btnget"> Filtrar </button></center>
+        </form>
+    </div>
+    <button id="bnt-menu-lateral" onclick="showMenu()">
+        <i class="fa-solid fa-arrow-down"></i>
+    </button>
+</div>
+{% endblock menu_filtro %}
+
+{% block content %}
+<div>
+    <h1> Todas questões </h1>
+    <div class="results">
+        {% if questao_filter.qs %}
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="" class="questao-list">
+                            <div class="">Enunciado</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
+                            <div class="">Autor</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
+                            <div class="">Linguagem</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
+                            <div class="">Período</div>
+                            <div class="clear"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for questao in questao_filter.qs %}
+                        <tr>
+                            <th class="questao-list">
+                                <a href="{% url 'plpPool:questao_detail' questao.pk %}">{{questao}}</a>
+                            </th>
+                            <td class="questao-list">{{questao.autor}}</td>
+                            <td class="questao-list">{{questao.linguagem}}</td>
+                            <td class="questao-list">{{questao.periodo}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <h1> Nenhuma questão encontrada </h1>
+        {% endif %}        
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} plpPoolWeb {% endblock title %}
+
+{% block branding %} <h1 class="site-name"> plpPoolWeb </h1> {% endblock %}
+
+{% block usertools %}
+{% include "session_options.html" %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+
+<div id="preview">
+    <br>
+    <h1> {{ questao.enunciado }} </h1>
+
+    <div class="preview_field">
+      <label for="autor"> Autor: </label> <span> {{ questao.autor }} </span>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
+      <label for="periodo"> Período: </label> <span> {{ questao.periodo }} </span>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
+      <label for="linguagem"> Linguagem: </label>
+        <span> 
+          {{ questao.linguagem }} 
+        </span>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
+      <div>
+        <label for=""> Tags: </label>
+      </div>
+      <div id="tag-list-preview">
+          {% for tag in questao.tags.all %}
+            <span class="tag-obj-preview"> {{ tag }} </span>
+          {% empty %}
+            <h2> Nenhuma tag adicionada </h2>
+          {% endfor %}
+      </div>
+    </div>
+    <hr style="margin-top: 20px;">
+
+    <div class="preview_field">
+      <label for="descricao"> Descrição: </label>
+      <textarea id="descricao" style="width: 97%; min-height: {{questao.descricao|count_lines_str_monitor}}px" readonly>{{ questao.descricao }}
+      </textarea>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
+      <label for="codigo"> Código: </label>
+      <textarea id="codigo" style="width: 97%; min-height: {{questao.codigo|count_lines_str}}px" readonly>{{ questao.codigo }}</textarea>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
+      <label for="testes"> Testes: </label>
+      <div id="testes">
+        {% for teste in questao.testes.all %}
+        <ul>
+          <li style="display: inline;"> 
+            <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <p> Entrada: </p>
+            <textarea id="saida" style="width: 97%; min-height: {{teste.entrada|count_lines_str_monitor}}px" readonly>{{ teste.entrada }}</textarea>
+
+            <p> Saida: </p>
+            <textarea id="saida" style="width: 97%; min-height: {{teste.saida|count_lines_str_monitor}}px" readonly>{{ teste.saida }}</textarea>
+          </li>
+        </ul>
+        {% empty %}
+            <h2> Nenhum teste adicionado </h2>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+{% endblock content %}

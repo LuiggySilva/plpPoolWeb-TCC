@@ -4,5 +4,7 @@ from plpPool import views
 app_name = 'plpPool'
 
 urlpatterns = [
-    path('', views.test, name="test"),
+    path('', views.todas_questoes, name="pagina_inicial"),
+    path('questao/<int:pk>/', views.questao, name="questao_detail"),
+    path('monitor', views.monitor, name="monitor_questoes"),
 ]

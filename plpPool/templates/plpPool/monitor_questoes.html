@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} plpPoolWeb | Minhas Questões {% endblock title %}
+
+{% block branding %} <h1 class="site-name"> plpPoolWeb </h1> {% endblock %}
+
+{% block usertools %}
+{% include "session_options.html" %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+
+<div>
+    <form action="" method="post">
+        {{form.as_p}}
+        <button type="submit" class="bnt-submit"> Submeter </button>
+    </form>
+</div>
+
+{% endblock content %}
