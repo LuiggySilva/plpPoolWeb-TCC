@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
+{% load static %}
 
 {% block extrahead %}{{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
@@ -8,6 +9,8 @@
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/admin_style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/highlight.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}
@@ -101,15 +104,28 @@
     <hr style="margin-top: 20px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="descricao"> Descrição: </label>
-      <textarea id="descricao" style="width: 97%; min-height: {{ adminform.form.instance.descricao|count_lines_str}}px" readonly>{{ adminform.form.instance.descricao }}
-      </textarea>
+      <div class="overflow-div" >
+        <div style="margin-top: 10px; margin-bottom: 10px;">
+          {% for line in adminform.form.instance.descricao|str_lines_strip %}
+            <span style="white-space: pre;">{{ line }}</span>
+          {% endfor %}
+        </div>
+      </div>
     </div>
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="codigo"> Código: </label>
-      <textarea id="codigo" style="width: 97%; min-height: {{ adminform.form.instance.codigo|count_lines_str}}px" readonly>{{ adminform.form.instance.codigo }}</textarea>
+      <div class="overflow-div">
+        <div class="border" style="margin-top: 10px; margin-bottom: 10px;">
+          {{adminform.form.instance.codigo|highlight_code:adminform.form.instance.linguagem}}
+        </div>
+      </div>
     </div>
     <hr style="margin-top: 15px;">
 
@@ -130,19 +146,38 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="testes"> Testes: </label>
       <button class="bnt-submit" title="Executar todos testes"> RUN </button>
       <div id="testes">
         {% for teste in adminform.form.instance.testes.all %}
-        <ul>
+        <ul class="border">
           <li style="display: inline;"> 
             <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
-            <p> Entrada: </p>
-            <textarea id="saida" style="width: 97%; min-height: {{ teste.entrada|count_lines_str}}px" readonly>{{ teste.entrada }}</textarea>
-
-            <p> Saida: </p>
-            <textarea id="saida" style="width: 97%; min-height: {{ teste.saida|count_lines_str}}px" readonly>{{ teste.saida }}</textarea>
+            <div class="overflow-div" >
+              <p> <b> Entrada: </b> </p>
+              <div style="margin-top: 10px; margin-bottom: 10px;">
+                {% for line in teste.entrada|str_lines_strip %}
+                  <span style="white-space: pre;">{{ line }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="overflow-div" >
+              <p> <b> Saída: </b> </p>
+              <div style="margin-top: 10px; margin-bottom: 10px;">
+                {% for line in teste.saida|str_lines_strip %}
+                  <span style="white-space: pre;">{{ line }}</span>
+                {% endfor %}
+              </div>
+            </div>
           </li>
+
+          <details style="margin-bottom: 5px;">
+            <summary style="cursor: pointer;"> Execução: </summary>
+            <div class="border" style="width: 98.9%; padding:5px"> ... </div>
+          </details>
+
         </ul>
         {% empty %}
           <h2> Nenhum teste adicionado </h2>

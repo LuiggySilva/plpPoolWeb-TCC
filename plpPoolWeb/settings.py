@@ -32,6 +32,8 @@ INTERNAL_IPS = [ # Pro debug toolbar
 ]
 
 ALLOWED_HOSTS = []
+SESSION_COOKIE_AGE = 43200
+SESSION_SAVE_EVERY_REQUEST = True
 
 AUTH_USER_MODEL = 'plpPool.User'
 

@@ -167,3 +167,20 @@
 .password-reset-form ul {
     text-align: left;
 }
+
+.overflow-div {
+    overflow-x: auto;
+}
+
+.empty-bnt {
+    background: var(--body-bg);
+    border: none;
+    color: var(--body-fg);
+    cursor: pointer;
+}
+
+.border {
+    border: 1px solid var(--body-fg);
+    border-radius: 5px;
+    padding-left: 5px;
+}

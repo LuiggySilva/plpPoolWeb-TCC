@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %} plpPoolWeb {% endblock title %}
 
@@ -8,6 +9,10 @@
 {% block usertools %}
 {% include "session_options.html" %}
 {% endblock %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/highlight.css' %}">
+{% endblock extrastyle %}
 
 {% block nav-global %}{% endblock %}
 
@@ -50,30 +55,57 @@
     <hr style="margin-top: 20px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="descricao"> Descrição: </label>
-      <textarea id="descricao" style="width: 97%; min-height: {{questao.descricao|count_lines_str_monitor}}px" readonly>{{ questao.descricao }}
-      </textarea>
+      <div class="overflow-div" >
+        <div style="margin-bottom: 10px;">
+          {% for line in questao.descricao|str_lines_strip %}
+            <span style="white-space: pre;">{{ line }}</span>
+          {% endfor %}
+        </div>
+      </div>
     </div>
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="codigo"> Código: </label>
-      <textarea id="codigo" style="width: 97%; min-height: {{questao.codigo|count_lines_str}}px" readonly>{{ questao.codigo }}</textarea>
+      <div class="overflow-div">
+        <div style="margin-top: 10px; margin-bottom: 10px;">
+          {{questao.codigo|highlight_code:questao.linguagem}}
+        </div>
+      </div>
+  
     </div>
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <!--TODO copiar texto -->
+      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
       <label for="testes"> Testes: </label>
       <div id="testes">
         {% for teste in questao.testes.all %}
-        <ul>
-          <li style="display: inline;"> 
+        <ul class="border">
+          <li style="display: inline;" > 
             <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
-            <p> Entrada: </p>
-            <textarea id="saida" style="width: 97%; min-height: {{teste.entrada|count_lines_str_monitor}}px" readonly>{{ teste.entrada }}</textarea>
-
-            <p> Saida: </p>
-            <textarea id="saida" style="width: 97%; min-height: {{teste.saida|count_lines_str_monitor}}px" readonly>{{ teste.saida }}</textarea>
+            <div class="overflow-div" >
+              <div style="margin-top: 10px; margin-bottom: 10px;">
+                <p> <b> Entrada: </b> </p>
+                {% for line in teste.entrada|str_lines_strip %}
+                  <span style="white-space: pre;">{{ line }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="overflow-div" >
+              <div style="margin-top: 10px; margin-bottom: 10px;">
+                <p> <b> Saída: </b> </p>
+                {% for line in teste.saida|str_lines_strip %}
+                  <span style="white-space: pre;">{{ line }}</span>
+                {% endfor %}
+              </div>
+            </div>
           </li>
         </ul>
         {% empty %}
