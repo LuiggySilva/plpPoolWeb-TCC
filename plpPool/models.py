@@ -126,15 +126,24 @@ class Linguagem(models.Model):
         verbose_name_plural = "Linguagens"
 
 
-
 class Questao(models.Model):
     enunciado = models.CharField(max_length=150, blank=False, null=False)
     codigo = models.TextField("Código", blank=False)
     descricao = models.TextField("Descrição", blank=False)
     tags = models.ManyToManyField(Tag, related_name="tags", blank=False)
     autor = models.ForeignKey(Monitor, on_delete=models.DO_NOTHING)
-    linguagem = models.ForeignKey(Linguagem, on_delete=models.DO_NOTHING, blank=False, null=False)
+    linguagem = models.ForeignKey(Linguagem, on_delete=models.DO_NOTHING) 
     periodo = models.ForeignKey("Periodo", on_delete=models.DO_NOTHING, blank=True)
+    
+    class Tipo(models.TextChoices):
+        BASICA = 'Básica', _('Básica')
+        AVANCADA = 'Avançada', _('Avançada')
+
+    tipo = models.CharField(
+        max_length=10, 
+        choices=Tipo.choices, 
+        default=Tipo.BASICA
+    )
 
     def __str__(self):
         return f"{self.enunciado}"
@@ -154,8 +163,7 @@ class Atividade(models.Model):
     linguagem = models.ForeignKey(
         Linguagem, 
         on_delete=models.DO_NOTHING, 
-        blank=True, 
-        null=False
+        blank=True, null=True
     )
     qtd_basicas = models.IntegerField(
         "Questões básicas", 

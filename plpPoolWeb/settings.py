@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     # apps internos
     'plpPool',
     # apps externos
+    'crispy_forms',
+    'crispy_tailwind',
     'django_filters',
     "debug_toolbar", # Deve ser o ultimo
 ]

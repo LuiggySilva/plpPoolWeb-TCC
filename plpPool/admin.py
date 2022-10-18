@@ -13,6 +13,7 @@ from .models import (
 )
 from .forms import QuestaoForm, PeriodoForm
 
+
 class TesteInline(admin.StackedInline):
     model = Teste
     extra = 0
@@ -116,7 +117,8 @@ class QuestaoAdmin(admin.ModelAdmin):
                     'enunciado', 
                     'descricao', 
                     'codigo',
-                    'tags', 
+                    'tags',
+                    'tipo',
                     'linguagem',
                     'autor',
                     'periodo'
@@ -126,9 +128,14 @@ class QuestaoAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ['tags', ]
     inlines = (TesteInline,)
-    list_display = ('enunciado', 'autor', 'linguagem', 'periodo')
-    list_filter = (TagsListFilter, 'periodo__nome')
+    list_display = ('enunciado', 'autor', 'linguagem', 'tipo', 'periodo')
+    list_filter = (TagsListFilter, 'tipo', 'linguagem', 'periodo__nome' )
+    actions = ['delete_selected']
 
+    def delete_selected(self, request, obj):
+        for o in obj.all():
+            o.delete()
+    delete_selected.short_description = 'Remover questões selecionadas'
 
 @admin.register(Atividade)
 class AtividadeAdmin(admin.ModelAdmin):

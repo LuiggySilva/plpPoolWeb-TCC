@@ -67,11 +67,7 @@
             <input type="hidden" name="next" value="{{ next }}">
         </div>
         <div class="password-reset-link">
-            <p>
-                <a href="{% url 'reset_password' %}">
-                    {% translate 'Forgotten your password or username?' %}
-                </a>
-            </p>
+            <p> <a href="{% url 'reset_password' %}"> Esqueceu a senha? </a> </p>
         </div>
         <div class="submit-row">
             <input type="submit" value="{% translate 'Log in' %}">

@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %} plpPoolWeb | Minhas Questões {% endblock title %}
 
@@ -14,10 +17,104 @@
 {% block content %}
 
 <div>
-    <form action="" method="post">
-        {{form.as_p}}
-        <button type="submit" class="bnt-submit"> Submeter </button>
-    </form>
+    <div>
+        <h2 class="questao-list">Atividades</h2>
+        <ul>
+        {% for atividade in atividades %}
+            {% if atividade.linguagem == None %}
+                <li>
+                    <p>{{atividade.descricao}} </p>
+                    <p>Deadline: {{atividade.data}}</p>
+                </li>
+            {% endif %}
+        {% empty %}
+            <p> Nenhuma atividade </p>    
+        {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <div class="monitor-questoes-titulo">
+            <div>
+                <h2>Minhas questões</h2>
+            </div>
+            <div>
+                <span> <strong> Básicas </strong> XX/XX </span> | 
+                <span> <strong> Avançadas </strong> XX/XX </span>
+            </div>
+        </div>
+        <div class="monitor-questoes">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="" class="questao-list">
+                            <div class="">Enunciado</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
+                            <div class="">Linguagem</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
+                            <div class="">Tipo</div>
+                            <div class="clear"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for questao in questoes %}
+                        <tr>
+                            <th class="questao-list">
+                                <a href="{% url 'plpPool:questao_detail' questao.pk %}">{{questao}}</a>
+                            </th>
+                            <td class="questao-list">{{questao.linguagem}}</td>
+                            <td class="questao-list">{{questao.tipo}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>          
+
+        <div class="monitor-form">
+            <form id="form-container" method="POST">
+                {% csrf_token %}
+                
+                <div>
+                    <p>{{form.enunciado.label_tag}} {{form.enunciado}}</p>
+                    <p>{{form.enunciado.errors}}</p>
+                </div>
+                <div style="float: lefat;">
+                    <center>
+                        {{form.tags}}
+                        {{form.tags.erros}}
+                        {{form.linguagem}}
+                        {{form.linguagem.errors}}
+                    </center>
+                </div>
+                <div>
+                    <p>{{form.descricao.label_tag}} {{form.descricao.errors}}</p>
+                    {{form.descricao}}
+                </div>
+                <div>
+                    <p>{{form.codigo.label_tag}} {{form.codigo.errors}}</p>
+                    {{form.codigo}}
+                </div>
+
+                <h2> Testes </h3>
+
+                {{formset.management_form}}
+                {% for form in formset %}
+                <div class="test-form" style="margin-bottom: 15px;">
+                    {{form|crispy}}
+                </div>
+                {% endfor %}
+                <div id="bnt-test-form" style="margin-top:10px">
+                    <button id="add-form" style="background-color: transparent; border:none" type="button"><a class="btn btn-info" id="add-test"><i class="fa fa-plus"></i> Adicionar Teste</a></button>
+                    <button class="btn btn-primary pull-right" type="submit"><i class="fa fa-floppy-o"></i> Salvar</button>
+                </div>
+            </form>
+    
+        </div>
+    </div>
 </div>
 
 {% endblock content %}

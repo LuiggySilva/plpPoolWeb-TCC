@@ -41,6 +41,14 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <label for="tipo"> Tipo: </label>
+        <span> 
+          {{ questao.tipo }} 
+        </span>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
       <div>
         <label for=""> Tags: </label>
       </div>
@@ -55,8 +63,9 @@
     <hr style="margin-top: 20px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button  class="empty-bnt" title="Copiar" onclick="clipboard('descricao')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="descricao" type="hidden" value="{{questao.descricao}}">
+
       <label for="descricao"> Descrição: </label>
       <div class="overflow-div" >
         <div style="margin-bottom: 10px;">
@@ -69,8 +78,9 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('codigo')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="codigo" type="hidden" value="{{questao.codigo}}">
+
       <label for="codigo"> Código: </label>
       <div class="overflow-div">
         <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -82,8 +92,9 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('testes')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="testes" type="hidden" name="testes" value="{{questao.testes.all|tests_to_clipboard}}">
+
       <label for="testes"> Testes: </label>
       <div id="testes">
         {% for teste in questao.testes.all %}

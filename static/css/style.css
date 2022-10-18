@@ -184,3 +184,63 @@
     border-radius: 5px;
     padding-left: 5px;
 }
+
+.monitor-questoes-titulo, .monitor-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+}
+
+.monitor-form {
+    margin-top: 3em;
+    justify-content: space-around;
+}
+.monitor-questoes-titulo {
+    justify-content: space-evenly;
+}
+
+.test-form textarea{
+    height: 100px;
+    overflow: auto;
+    resize: none;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.test-form textarea{
+    height: 100px;
+    overflow: auto;
+    resize: none;
+    white-space: nowrap;
+    width: 100%;
+}
+
+#id_descricao, #id_codigo {
+    min-height: 300px;
+    overflow: auto;
+    resize: none;
+    white-space: nowrap;
+    width: 100%;
+}
+
+#id_enunciado {
+    overflow: auto;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.monitor-form {
+    width: 100%;
+    display: inline-block;
+}
+
+.monitor-questoes table {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
