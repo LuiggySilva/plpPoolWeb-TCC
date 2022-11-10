@@ -100,18 +100,24 @@
         {% for teste in questao.testes.all %}
         <ul class="border">
           <li style="display: inline;" > 
-            <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <h3 style="text-decoration: underline;"> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
             <div class="overflow-div" >
               <div style="margin-top: 10px; margin-bottom: 10px;">
-                <p> <b> Entrada: </b> </p>
+                <div class="test_title">
+                  <img class="test_icon" src="{% static 'images/right_to_bracket.svg' %}"> 
+                  <span> <b> Entrada: </b> </span>
+                </div>
                 {% for line in teste.entrada|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}
               </div>
             </div>
             <div class="overflow-div" >
-              <div style="margin-top: 10px; margin-bottom: 10px;">
-                <p> <b> Saída: </b> </p>
+              <div style="margin-bottom: 10px;">
+                <div class="test_title">
+                  <img class="test_icon" src="{% static 'images/right_from_bracket.svg' %}">
+                  <span> <b> Saída: </b> </span>
+                </div>
                 {% for line in teste.saida|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}

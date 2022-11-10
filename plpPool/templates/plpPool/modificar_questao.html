@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %} plpPoolWeb | Editar questão {% endblock title %}
+
+{% block branding %} <h1 class="site-name"> plpPoolWeb </h1> {% endblock %}
+
+{% block usertools %}
+{% include "session_options.html" %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+
+
+<div class="monitor-form">
+
+    <h1>Submeter questão</h1>
+
+    <form action="" id="form-container" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div>
+            <p>{{form.enunciado.label_tag}} {{form.enunciado}}</p>
+            <p>{{form.enunciado.errors}}</p>
+        </div>
+        <div>
+            <center>
+                {{form.tipo}}
+                {{form.tipo.errors}}
+                {{form.tags}}
+                {{form.tags.erros}}
+                {{form.linguagem}}
+                {{form.linguagem.errors}}
+            </center>
+        </div>
+        <div>
+            <p>{{form.descricao.label_tag}} {{form.descricao.errors}}</p>
+            {{form.descricao}}
+        </div>
+        <div>
+            <p>{{form.codigo.label_tag}} {{form.codigo.errors}}</p>
+            {{form.codigo}}
+        </div>
+
+        <h2> Testes </h3>
+
+        {{formset.management_form}}
+        
+        <div>
+            {% for dict in formset.errors %}
+                {% for error in dict.values %}
+                    {{ error }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% for form in formset %}
+        <div class="test-form" style="margin-bottom: 15px;">
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            <div>
+                {{form.entrada.error}}
+                {{form.entrada.label_tag}}
+                {{form.entrada}}
+                {{form.entrada.errors}}
+
+                {{form.saida.error}}
+                {{form.saida.label_tag}}
+                {{form.saida}}
+                {{form.saida.errors}}
+
+                <div class="tests-title" style="margin-top: 5px;">
+                    <div>
+                        {{form.tipo.error}}
+                        {{form.tipo.label_tag}}
+                        {{form.tipo}}
+                        {{form.tipo.errors}}
+                    </div>
+                    <div>
+                        {{form.DELETE.error}}
+                        {{form.DELETE.label}}
+                        {{form.DELETE}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div id="bnt-test-form" style="margin-top:10px">
+            <button id="add-form" style="background-color: transparent; border:none" type="button"><a class="btn btn-info" id="add-test"><i class="fa fa-plus"></i> Adicionar Teste</a></button>
+            <button class="btn btn-primary pull-right" type="submit"><i class="fa fa-floppy-o"></i> Salvar</button>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

@@ -132,7 +132,7 @@
       
       <label for="codigo"> Código: </label>
       <div class="overflow-div">
-        <div class="border" style="margin-top: 10px; margin-bottom: 10px;">
+        <div style="margin-top: 10px;margin-bottom: 10px;padding: 5px;background-color: #121212;border-radius: 5px;">
           {{adminform.form.instance.codigo|highlight_code:adminform.form.instance.linguagem}}
         </div>
       </div>
@@ -165,18 +165,24 @@
         {% for teste in adminform.form.instance.testes.all %}
         <ul class="border">
           <li style="display: inline;"> 
-            <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <h3 style="text-decoration: underline;"> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
             <div class="overflow-div" >
-              <p> <b> Entrada: </b> </p>
-              <div style="margin-top: 10px; margin-bottom: 10px;">
+              <div class="test_title">
+                <img class="test_icon" src="{% static 'images/right_to_bracket.svg' %}"> 
+                <span> <b> Entrada: </b> </span>
+              </div>
+              <div style="margin-bottom: 10px;">
                 {% for line in teste.entrada|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}
               </div>
             </div>
             <div class="overflow-div" >
-              <p> <b> Saída: </b> </p>
-              <div style="margin-top: 10px; margin-bottom: 10px;">
+              <div class="test_title">
+                <img class="test_icon" src="{% static 'images/right_from_bracket.svg' %}">
+                <span> <b> Saída: </b> </span>
+              </div>
+              <div style="margin-bottom: 10px;">
                 {% for line in teste.saida|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}

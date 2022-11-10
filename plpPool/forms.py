@@ -63,10 +63,18 @@ class QuestaoFilter(django_filters.FilterSet):
             attrs={'multiple': 'multiple', 'id':'chkveg3'}
         )
     )
+    tipo = django_filters.MultipleChoiceFilter(
+        label=False, 
+        choices=(Questao.Tipo.choices),
+        widget=forms.widgets.SelectMultiple(
+            attrs={'multiple': 'multiple', 'id':'chkveg4'}
+        )
+    )
+
 
     class Meta:
         model = Questao
-        fields = ['enunciado', 'tags', 'periodo', 'linguagem']
+        fields = ['enunciado', 'tags', 'periodo', 'linguagem', 'tipo']
 
 
 class QuestaoForm(forms.ModelForm):
@@ -77,7 +85,8 @@ class QuestaoForm(forms.ModelForm):
             'codigo',
             'descricao',
             'tags',
-            'linguagem',
+            'tipo',
+            'linguagem'
         ]
         labels = {
             'enunciado':"Enunciado",
@@ -85,17 +94,21 @@ class QuestaoForm(forms.ModelForm):
             'descricao':"Descrição",
             'tags':"Tags",
             'linguagem':"Linguagem",
+            'tipo':"Tipo"
         }
         widgets = {
             'tags': forms.widgets.SelectMultiple(
                         attrs={'multiple': 'multiple', 'id':'chkveg1'}
-                    )
+                    ),
+            'tipo': forms.widgets.Select(attrs={'empty_label':"Tipo"}),
+            
         }
 
 class TesteForm(forms.ModelForm):
     class Meta:
         model = Teste
         exclude = ['questao']
+
 
 TesteFormSet = modelformset_factory(Teste, fields=("entrada", "saida", "tipo"), extra=1)
 
