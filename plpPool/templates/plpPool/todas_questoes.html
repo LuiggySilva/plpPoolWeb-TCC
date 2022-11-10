@@ -9,6 +9,8 @@
 {% include "session_options.html" %}
 {% endblock %}
 
+
+
 {% block nav-global %}{% endblock %}
 
 {% block menu_filtro %}
@@ -47,6 +49,10 @@
                             <div class="clear"></div>
                         </th>
                         <th scope="" class="questao-list">
+                            <div class="">Tipo</div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="" class="questao-list">
                             <div class="">Período</div>
                             <div class="clear"></div>
                         </th>
@@ -60,6 +66,7 @@
                             </th>
                             <td class="questao-list">{{questao.autor}}</td>
                             <td class="questao-list">{{questao.linguagem}}</td>
+                            <td class="questao-list">{{questao.tipo}}</td>
                             <td class="questao-list">{{questao.periodo}}</td>
                         </tr>
                     {% endfor %}

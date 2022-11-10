@@ -1,7 +1,8 @@
 from django import forms
+from django.forms import inlineformset_factory, modelformset_factory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UsernameField
-from .models import Questao, Tag, Periodo, Monitor
+from .models import Questao, Tag, Periodo, Monitor, Linguagem,Teste
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 import django_filters
@@ -55,10 +56,25 @@ class QuestaoFilter(django_filters.FilterSet):
             attrs={'multiple': 'multiple', 'id':'chkveg2'}
         )
     )
+    linguagem = django_filters.MultipleChoiceFilter(
+        label=False, 
+        choices=(Linguagem.objects.values_list('pk', 'nome')),
+        widget=forms.widgets.SelectMultiple(
+            attrs={'multiple': 'multiple', 'id':'chkveg3'}
+        )
+    )
+    tipo = django_filters.MultipleChoiceFilter(
+        label=False, 
+        choices=(Questao.Tipo.choices),
+        widget=forms.widgets.SelectMultiple(
+            attrs={'multiple': 'multiple', 'id':'chkveg4'}
+        )
+    )
+
 
     class Meta:
         model = Questao
-        fields = ['enunciado', 'tags', 'periodo']
+        fields = ['enunciado', 'tags', 'periodo', 'linguagem', 'tipo']
 
 
 class QuestaoForm(forms.ModelForm):
@@ -69,18 +85,34 @@ class QuestaoForm(forms.ModelForm):
             'codigo',
             'descricao',
             'tags',
-            'linguagem',
+            'tipo',
+            'linguagem'
         ]
         labels = {
             'enunciado':"Enunciado",
             'codigo':"Código",
             'descricao':"Descrição",
             'tags':"Tags",
-            'linguagem':"Linguagens",
+            'linguagem':"Linguagem",
+            'tipo':"Tipo"
+        }
+        widgets = {
+            'tags': forms.widgets.SelectMultiple(
+                        attrs={'multiple': 'multiple', 'id':'chkveg1'}
+                    ),
+            'tipo': forms.widgets.Select(attrs={'empty_label':"Tipo"}),
+            
         }
 
+class TesteForm(forms.ModelForm):
+    class Meta:
+        model = Teste
+        exclude = ['questao']
 
-class PeriodoForm(forms.ModelForm):
+
+TesteFormSet = modelformset_factory(Teste, fields=("entrada", "saida", "tipo"), extra=1)
+
+class PeriodoForm(forms.ModelForm): 
     class Meta:
         model = Periodo
         fields = '__all__'

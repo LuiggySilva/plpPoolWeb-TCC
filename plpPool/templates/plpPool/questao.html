@@ -41,6 +41,14 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+      <label for="tipo"> Tipo: </label>
+        <span> 
+          {{ questao.tipo }} 
+        </span>
+    </div>
+    <hr style="margin-top: 15px;">
+
+    <div class="preview_field">
       <div>
         <label for=""> Tags: </label>
       </div>
@@ -55,8 +63,9 @@
     <hr style="margin-top: 20px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button  class="empty-bnt" title="Copiar" onclick="clipboard('descricao')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="descricao" type="hidden" value="{{questao.descricao}}">
+
       <label for="descricao"> Descrição: </label>
       <div class="overflow-div" >
         <div style="margin-bottom: 10px;">
@@ -69,8 +78,9 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('codigo')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="codigo" type="hidden" value="{{questao.codigo}}">
+
       <label for="codigo"> Código: </label>
       <div class="overflow-div">
         <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -82,25 +92,32 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('testes')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="testes" type="hidden" name="testes" value="{{questao.testes.all|tests_to_clipboard}}">
+
       <label for="testes"> Testes: </label>
       <div id="testes">
         {% for teste in questao.testes.all %}
         <ul class="border">
           <li style="display: inline;" > 
-            <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <h3 style="text-decoration: underline;"> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
             <div class="overflow-div" >
               <div style="margin-top: 10px; margin-bottom: 10px;">
-                <p> <b> Entrada: </b> </p>
+                <div class="test_title">
+                  <img class="test_icon" src="{% static 'images/right_to_bracket.svg' %}"> 
+                  <span> <b> Entrada: </b> </span>
+                </div>
                 {% for line in teste.entrada|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}
               </div>
             </div>
             <div class="overflow-div" >
-              <div style="margin-top: 10px; margin-bottom: 10px;">
-                <p> <b> Saída: </b> </p>
+              <div style="margin-bottom: 10px;">
+                <div class="test_title">
+                  <img class="test_icon" src="{% static 'images/right_from_bracket.svg' %}">
+                  <span> <b> Saída: </b> </span>
+                </div>
                 {% for line in teste.saida|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}

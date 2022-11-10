@@ -11,7 +11,7 @@
 <script src="https://unpkg.com/bootstrap@3.3.2/dist/js/bootstrap.min.js"></script> 
 <script src="https://unpkg.com/bootstrap-multiselect@0.9.13/dist/js/bootstrap-multiselect.js"></script>
 <link href="https://unpkg.com/bootstrap-multiselect@0.9.13/dist/css/bootstrap-multiselect.css" rel="stylesheet"/> 
-<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/app.js' %}" defer></script>
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
 {% if not is_popup and is_nav_sidebar_enabled %}
   <link rel="stylesheet" type="text/css" href="{% static "admin/css/nav_sidebar.css" %}">

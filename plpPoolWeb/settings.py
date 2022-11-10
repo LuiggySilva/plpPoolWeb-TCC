@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', cast=str)
+SECRET_KEY = 'django-insecure-7jjqesw%2=$ecn4bt$p%n)8sh=drd^d#e$@jqxua!g9i@v1%@^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool, default=True)
+DEBUG = True
 
 INTERNAL_IPS = [ # Pro debug toolbar
     "127.0.0.1",
@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     # apps internos
     'plpPool',
     # apps externos
+    'crispy_forms',
+    'crispy_tailwind',
     'django_filters',
     "debug_toolbar", # Deve ser o ultimo
 ]

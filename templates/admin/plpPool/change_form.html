@@ -90,6 +90,14 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
+        <label for=""> Tipo: </label>
+        <span> 
+          {{ adminform.form.instance.tipo }} 
+        </span>
+    </div>
+    <hr style="margin-top: 20px;">
+
+    <div class="preview_field">
       <div>
         <label for=""> Tags: </label>
       </div>
@@ -104,8 +112,9 @@
     <hr style="margin-top: 20px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('descricao')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="descricao" type="hidden" value="{{adminform.form.instance.descricao}}">
+
       <label for="descricao"> Descrição: </label>
       <div class="overflow-div" >
         <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -118,11 +127,12 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('codigo')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="codigo" type="hidden" value="{{adminform.form.instance.codigo}}">
+      
       <label for="codigo"> Código: </label>
       <div class="overflow-div">
-        <div class="border" style="margin-top: 10px; margin-bottom: 10px;">
+        <div style="margin-top: 10px;margin-bottom: 10px;padding: 5px;background-color: #121212;border-radius: 5px;">
           {{adminform.form.instance.codigo|highlight_code:adminform.form.instance.linguagem}}
         </div>
       </div>
@@ -146,26 +156,33 @@
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <!--TODO copiar texto -->
-      <button class="empty-bnt" title="Copiar" onclick=""><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <button class="empty-bnt" title="Copiar" onclick="clipboard('testes')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+      <input id="testes" type="hidden" value="{{adminform.form.instance.testes.all|tests_to_clipboard}}">
+
       <label for="testes"> Testes: </label>
       <button class="bnt-submit" title="Executar todos testes"> RUN </button>
       <div id="testes">
         {% for teste in adminform.form.instance.testes.all %}
         <ul class="border">
           <li style="display: inline;"> 
-            <h3> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <h3 style="text-decoration: underline;"> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
             <div class="overflow-div" >
-              <p> <b> Entrada: </b> </p>
-              <div style="margin-top: 10px; margin-bottom: 10px;">
+              <div class="test_title">
+                <img class="test_icon" src="{% static 'images/right_to_bracket.svg' %}"> 
+                <span> <b> Entrada: </b> </span>
+              </div>
+              <div style="margin-bottom: 10px;">
                 {% for line in teste.entrada|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}
               </div>
             </div>
             <div class="overflow-div" >
-              <p> <b> Saída: </b> </p>
-              <div style="margin-top: 10px; margin-bottom: 10px;">
+              <div class="test_title">
+                <img class="test_icon" src="{% static 'images/right_from_bracket.svg' %}">
+                <span> <b> Saída: </b> </span>
+              </div>
+              <div style="margin-bottom: 10px;">
                 {% for line in teste.saida|str_lines_strip %}
                   <span style="white-space: pre;">{{ line }}</span>
                 {% endfor %}

@@ -129,3 +129,28 @@
     border-radius: 5px;
     padding-left: 5px;
 }
+
+/* Apply a light color scheme */
+@media (prefers-color-scheme: light) {
+    .test_icon {
+        height: 15px;
+        width: 15px;
+        margin-right: 5px;
+    }
+}
+/* Apply a dark color scheme */
+@media (prefers-color-scheme: dark) {
+    .test_icon {
+        height: 15px;
+        width: 15px;
+        margin-right: 5px;
+        filter: invert(100%);
+    }
+}
+
+.test_title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+}
