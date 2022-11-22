@@ -62,9 +62,11 @@
     <div class="preview_field">
       <details >
         <summary style="cursor: pointer;"> Feedback </summary>
-        <form action="" method="post">
+        <form action="{% url 'plpPool:feedback' %}" method="post">
+          {% csrf_token %}
           <textarea name="feedback" id="feedback" style="width: 97%; min-height: 8em;" placeholder="Feedback"></textarea>
           <br>
+          <input type="hidden" name="pk" value='{{adminform.form.instance.id}}'>
           <center><button type="submit" class="bnt-submit" > Enviar </button></center>
         </form>
       </details>

@@ -41,16 +41,14 @@ LOGIN_REDIRECT_URL='monitor:pagina_inicial'
 LOGOUT_REDIRECT_URL='/login'
 SIGNUP_REDIRECT_URL='/login'
 LOGIN_URL='/login'
-'''
+
 EMAIL_HOST = config('EMAIL_HOST', cast=str) 
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str)
 EMAIL_USE_TLS = True
 
-SERVER_EMAIL = config('SERVER_EMAIL', cast=str)
-'''
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Application definition
 

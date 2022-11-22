@@ -14,11 +14,16 @@ from django.contrib.auth.decorators import login_required
 from .models import Questao, Tag, Periodo, Atividade, Monitor, Teste
 from .forms import QuestaoFilter, QuestaoForm, TesteFormSet, TesteForm
 from django.forms import modelformset_factory
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+
+from django.http import HttpResponseRedirect
 
 # Create your views here.
 
 def teste(request):
-    return render(request, 'plpPool/test.html', {"progresso":[["Haskell",1,2,2,2],["Prolog",2,1,2,2]]})
+    q = Questao.objects.all()
+    return render(request, 'plpPool/test.html', {"q":q})
 
 @login_required
 def todas_questoes(request): 
@@ -47,6 +52,22 @@ def monitor(request):
         }
     )
 
+def feedback(request):
+    q = Questao.objects.get(id=request.POST.get('pk'))
+    message = render_to_string(
+        'plpPool/email_feedback.html', 
+        context={
+            'feedback':request.POST.get('feedback'),
+            'questao':q
+        }
+    )
+    mail_subject = f'plpPoolWeb - Feedback - {q}'
+    to_email = q.autor.email
+    to_prof = request.user.email
+    email = EmailMessage(mail_subject, message, to=[to_email, to_prof])
+    email.send()
+    return redirect(reverse("admin:plpPool_questao_change", args=[request.POST.get('pk')]))
+
 def remover_questao_monitor(request, pk):
     q = get_object_or_404(Questao, pk=pk)
     q.delete()
@@ -56,6 +77,10 @@ def editar_questao_monitor(request, pk):
     context ={}
  
     q = get_object_or_404(Questao, pk=pk)
+
+    if (request.user != q.autor):
+        redirect(reverse_lazy("plpPool:monitor_questoes"))
+
     form = QuestaoForm(request.POST or None, instance=q)
 
     TesteFormSetUpdate = modelformset_factory(Teste, form=TesteForm, extra=0, can_delete=True)
@@ -66,8 +91,6 @@ def editar_questao_monitor(request, pk):
         for fs in formset:
             fss = fs.save(commit=False)
             if (fss.id == None):
-                # TODO ERRO AQUI - ADD NOVO TESTE EDIDANDO ELE N ENCONTRA O TIPO
-                print(fs.cleaned_data)
                 t = Teste(
                     tipo=fs.cleaned_data['tipo'], 
                     questao=q, 
@@ -91,7 +114,7 @@ class MonitorView(TemplateView):
 
     def get(self, *args, **kwargs):
         periodo_ativo = Periodo.objects.get(ativo=True)
-        atividades = Atividade.objects.filter(periodo=periodo_ativo)
+        atividades = Atividade.objects.filter(periodo=periodo_ativo).order_by('data')
         questoes = Questao.objects.filter(periodo=periodo_ativo, autor=self.request.user)
         formset = TesteFormSet(queryset=Teste.objects.none())
 
