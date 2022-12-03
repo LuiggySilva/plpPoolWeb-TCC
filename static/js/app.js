@@ -43,12 +43,23 @@ window.onload = function () {
       e.preventDefault()
       formNum--
       totalForms.setAttribute('value', `${formNum-1}`)
-      e.path[5].remove()
-      for (let index = 0; index < e.path.length; index++) {
-        const p = e.path[index];
-        if(p['className'] == 'test-form') {
-          p.remove()
-          break;
+      if(e.path) {
+        e.path[5].remove()
+        for (let index = 0; index < e.path.length; index++) {
+          const p = e.path[index];
+          if(p['className'] == 'test-form') {
+            p.remove()
+            break;
+          }
+        }
+      } else {
+        e.composedPath()[5].remove()
+        for (let index = 0; index < e.composedPath().length; index++) {
+          const p = e.composedPath()[index];
+          if(p['className'] == 'test-form') {
+            p.remove()
+            break;
+          }
         }
       }
       
@@ -58,7 +69,7 @@ window.onload = function () {
         if (tf.hasChildNodes()) {
           let tf_id = tf.getElementsByTagName('label')[0].getAttribute('for').split('-')[1]
           let formRegex = RegExp(`form-${tf_id}-`,'g')
-          document.innerHTML.replace(formRegex, `form-${formNumReset}-`);
+          document.querySelector('body').innerHTML.replace(formRegex, `form-${formNumReset}-`);
           formNumReset++
         }
       })
@@ -71,7 +82,6 @@ window.onload = function () {
     function addForm(e){
       e.preventDefault()
       let newForm = testForm[0].cloneNode(true)
-      console.log(newForm)
       let formRegex = RegExp(`form-(\\d){1}-`,'g')
       let formRegex2 = RegExp(`visibility: hidden;`,'g')
       let formRegex3 = RegExp(`spellcheck="false">.*<\/textarea>`,'g')

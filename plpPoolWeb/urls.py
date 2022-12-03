@@ -24,9 +24,10 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView, 
     PasswordResetCompleteView
 )
+from plpPool.forms import BackupDBForm
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, {'extra_context': {'db_backup_form': BackupDBForm}}),
     path('', include('plpPool.urls', namespace='monitor')),
 
     path('login/', LoginView.as_view(), name='login'),

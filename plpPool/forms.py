@@ -2,7 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory, modelformset_factory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UsernameField
-from .models import Questao, Tag, Periodo, Monitor, Linguagem,Teste
+from .models import Questao, Tag, Periodo, Monitor, Linguagem, Teste, BackupDB
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 import django_filters
@@ -23,6 +23,7 @@ class CustomUserCreationForm(UserCreationForm):
         field_classes = {"username": UsernameField}
 
 
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -34,6 +35,8 @@ class UserForm(forms.ModelForm):
             'username':'Nome',
             'email':'Email',
         }
+
+
 
 class QuestaoFilter(django_filters.FilterSet):
     enunciado = django_filters.CharFilter(
@@ -71,13 +74,17 @@ class QuestaoFilter(django_filters.FilterSet):
         )
     )
 
-
     class Meta:
         model = Questao
         fields = ['enunciado', 'tags', 'periodo', 'linguagem', 'tipo']
 
 
+
 class QuestaoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(QuestaoForm, self).__init__(*args, **kwargs)
+        self.fields['linguagem'].empty_label = None
+
     class Meta:
         model = Questao
         fields = [
@@ -100,17 +107,19 @@ class QuestaoForm(forms.ModelForm):
             'tags': forms.widgets.SelectMultiple(
                         attrs={'multiple': 'multiple', 'id':'chkveg1'}
                     ),
-            'tipo': forms.widgets.Select(attrs={'empty_label':"Tipo"}),
-            
+            'tipo': forms.widgets.Select(),
         }
+    
+
 
 class TesteForm(forms.ModelForm):
     class Meta:
         model = Teste
         exclude = ['questao']
-
-
+        
 TesteFormSet = modelformset_factory(Teste, fields=("entrada", "saida", "tipo"), extra=1)
+
+
 
 class PeriodoForm(forms.ModelForm): 
     class Meta:
@@ -133,3 +142,15 @@ class PeriodoForm(forms.ModelForm):
         ).update(is_active=False)
             
         return cd
+
+
+
+class BackupDBForm(forms.ModelForm):
+    class Meta:
+        model = BackupDB
+        fields = ['file',]
+        widgets = {
+            "file": forms.FileInput(attrs={
+                'accept': ".json"}
+            ),
+        }

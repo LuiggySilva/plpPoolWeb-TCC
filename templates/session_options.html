@@ -5,7 +5,7 @@
     <strong>{% firstof user.get_short_name user.get_username %}</strong>.
     {% endblock %}
     {% block userlinks %}
-    <a href="{% url 'reset_password' %}">{% translate 'Change password' %}</a> /
+    <a href="{% url 'plpPool:alterar_senha' %}">{% translate 'Change password' %}</a> /
     <a href="{% url 'logout' %}">{% translate 'Log out' %}</a>
     {% endblock %}
 </div>

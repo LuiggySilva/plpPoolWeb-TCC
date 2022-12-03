@@ -1,0 +1,15 @@
+{% autoescape off %}
+
+{% if atividade.linguagem %}
+    <h1>Deadline: {{atividade.data}}</h1>
+    <h3>Linguagem: {{atividade.linguagem}}</h3>
+    <h3>Quantidade de questões básicas: {{atividade.qtd_basicas}}</h3>
+    <h3>Quantidade de questões avançadas: {{atividade.qtd_avancadas}}</h3>
+    <br>
+    <p>{{atividade.descricao}}</p>
+{% else %}
+    <h1>Deadline: {{atividade.data}}</h1>
+    <p>{{atividade.descricao}}</p>
+{% endif %}
+
+{% endautoescape %}

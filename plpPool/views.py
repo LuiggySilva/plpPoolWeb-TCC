@@ -1,5 +1,15 @@
 from django.shortcuts import redirect, reverse, render, get_object_or_404
 from django.urls import reverse_lazy
+from django.forms import modelformset_factory
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.http import HttpResponseRedirect, FileResponse
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import (
     TemplateView, 
     ListView, 
@@ -9,55 +19,87 @@ from django.views.generic import (
     CreateView, 
     FormView, 
 )
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from .models import Questao, Tag, Periodo, Atividade, Monitor, Teste
-from .forms import QuestaoFilter, QuestaoForm, TesteFormSet, TesteForm
-from django.forms import modelformset_factory
+from .models import Questao, Tag, Periodo, Atividade, Monitor, Teste, BackupDB
+from .forms import QuestaoFilter, QuestaoForm, TesteFormSet, TesteForm, BackupDBForm
+import os, subprocess, sys, json
 
-# Create your views here.
-
-def teste(request):
-    return render(request, 'plpPool/test.html', {"progresso":[["Haskell",1,2,2,2],["Prolog",2,1,2,2]]})
 
 @login_required
-def todas_questoes(request): 
+def alterar_senha(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Sua senha foi atualizada com sucesso!')
+            return redirect('plpPool:todas_questoes')
+        else:
+            messages.error(request, 'Porfavor, corriga os problemas abaixo!')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'plpPool/alterar_senha.html', {
+        'form': form
+    })
+
+
+
+@login_required
+def todas_questoes(request):
     f = QuestaoFilter(request.GET, queryset=Questao.objects.all())
     return render(request, 'plpPool/todas_questoes.html', {'questao_filter': f})
+
+
 
 @login_required
 def questao(request, pk):
     q = Questao.objects.get(id=pk)
     return render(request, 'plpPool/questao.html', {'questao': q})
 
-@login_required
-def monitor(request):
-    periodo_ativo = Periodo.objects.get(ativo=True)
-    atividades = Atividade.objects.filter(periodo=periodo_ativo)
-    questoes = Questao.objects.filter(periodo=periodo_ativo, autor=request.user)
 
-    return render(
-        request,  
-        'plpPool/monitor_questoes.html', 
-        {
-            'form': QuestaoForm,
-            'formset': TesteFormSet,
-            'atividades': atividades,
-            'questoes': questoes
+
+def check_staff_superuser(user):
+   return user.is_staff and user.is_superuser
+
+@login_required
+@user_passes_test(check_staff_superuser)
+def feedback(request):
+    q = Questao.objects.get(id=request.POST.get('pk'))
+    message = render_to_string(
+        'plpPool/email_feedback.html', 
+        context={
+            'feedback':request.POST.get('feedback'),
+            'questao':q
         }
     )
+    mail_subject = f'plpPoolWeb Feedback: {q}'
+    to_email = q.autor.email
+    to_prof = request.user.email
+    email = EmailMessage(mail_subject, message, to=[to_email, to_prof])
+    email.content_subtype = "html"
+    email.send()
+    return redirect(reverse("admin:plpPool_questao_change", args=[request.POST.get('pk')]))
 
+
+
+@login_required
 def remover_questao_monitor(request, pk):
     q = get_object_or_404(Questao, pk=pk)
+    if (request.user != q.autor):
+        return redirect(reverse_lazy("plpPool:monitor_questoes"))
     q.delete()
     return redirect(reverse_lazy("plpPool:monitor_questoes"))
 
+
+
+@login_required
 def editar_questao_monitor(request, pk):
     context ={}
- 
     q = get_object_or_404(Questao, pk=pk)
-    form = QuestaoForm(request.POST or None, instance=q)
 
+    if (request.user != q.autor):
+        return redirect(reverse_lazy("plpPool:monitor_questoes"))
+
+    form = QuestaoForm(request.POST or None, instance=q)
     TesteFormSetUpdate = modelformset_factory(Teste, form=TesteForm, extra=0, can_delete=True)
     formset = TesteFormSetUpdate(data=request.POST or None, files=request.FILES or None, queryset=Teste.objects.filter(questao__pk=pk))
 
@@ -66,8 +108,6 @@ def editar_questao_monitor(request, pk):
         for fs in formset:
             fss = fs.save(commit=False)
             if (fss.id == None):
-                # TODO ERRO AQUI - ADD NOVO TESTE EDIDANDO ELE N ENCONTRA O TIPO
-                print(fs.cleaned_data)
                 t = Teste(
                     tipo=fs.cleaned_data['tipo'], 
                     questao=q, 
@@ -86,12 +126,78 @@ def editar_questao_monitor(request, pk):
     context["formset"] = formset
     return render(request, 'plpPool/modificar_questao.html', context)
 
+
+
+def run_shell_command(inputs=None, commands=None):
+    if(commands):
+        shell = os.name == 'nt'
+        executor = commands
+        exect = subprocess.Popen(
+            executor, 
+            stdin=subprocess.PIPE, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            universal_newlines=True, 
+            shell=shell
+        )
+        if(inputs):
+            for line in _inputs:
+                exect.stdin.write(line + "\n")
+        output, output_err = exect.communicate()
+        return_code = exect.wait()
+        if return_code:
+            return output_err
+        else:
+            return output
+
+@login_required
+@user_passes_test(check_staff_superuser)
+def dumpdata(request):
+    output = run_shell_command(
+        commands=[
+            'python',
+            'manage.py',
+            'dumpdata',
+            'plpPool'
+        ]
+    )
+    try:
+        with open('media/backup/plpPool_db_backup.json', 'w') as f:
+            f.write(output)
+        return FileResponse(open('media/backup/plpPool_db_backup.json', 'rb'), as_attachment=True)
+    except e:
+        return redirect(reverse("admin:app_list", args=['plpPool']))
+    finally:
+        os.remove('media/backup/plpPool_db_backup.json')
+    
+
+@login_required
+@user_passes_test(check_staff_superuser)
+def load_dumpdata(request):
+    form = BackupDBForm(request.POST, request.FILES)
+    if form.is_valid():
+        form.save()
+        output = run_shell_command(
+            commands=[
+                'python3',
+                'manage.py',
+                'loaddata',
+                f'media/{form.instance.file.name}'
+            ]
+        )
+        os.remove(f'media/{form.instance.file.name}')
+        BackupDB.objects.all().delete()
+        
+    return redirect(reverse("admin:app_list", args=['plpPool']))
+
+
+
 class MonitorView(TemplateView):
     template_name = "plpPool/monitor_questoes.html"
 
     def get(self, *args, **kwargs):
         periodo_ativo = Periodo.objects.get(ativo=True)
-        atividades = Atividade.objects.filter(periodo=periodo_ativo)
+        atividades = Atividade.objects.filter(periodo=periodo_ativo).order_by('data')
         questoes = Questao.objects.filter(periodo=periodo_ativo, autor=self.request.user)
         formset = TesteFormSet(queryset=Teste.objects.none())
 

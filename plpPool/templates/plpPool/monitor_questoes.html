@@ -6,7 +6,7 @@
 
 {% block title %} plpPoolWeb | Minhas Questões {% endblock title %}
 
-{% block branding %} <h1 class="site-name"> plpPoolWeb </h1> {% endblock %}
+{% block branding %} <h1 class="site-name"> <a href="{% url 'plpPool:pagina_inicial' %}">plpPoolWeb</a> </h1> {% endblock %}
 
 {% block usertools %}
 {% include "session_options.html" %}
@@ -26,7 +26,6 @@
             </div>
             <ul>
                 {% for atividade in atividades %}
-                    {% if atividade.linguagem == None %}
                         <li>
                             <div class="atividade-container">
                                 <div class="atividade-text">
@@ -37,7 +36,6 @@
                                 </div>
                             </div>
                         </li>
-                    {% endif %}
                 {% empty %}
                    <p> Nenhuma atividade </p>
                 {% endfor %}
@@ -48,7 +46,14 @@
     {% for p in progresso %}
         <div class="linguagem-container">
             <div class="linguagem-title">
-                <h2>{{p.0}}</h2>
+                <div class="minhas-questoes-title">
+                    <h2>{{p.0}}</h2>
+                    {% for atividade in atividades %}
+                    {% if atividade.linguagem.nome == p.0 %}
+                    <i><h3><strong>Deadline:</strong> {{atividade.data}}</h3></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
             </div>
             <div>
                 <div>

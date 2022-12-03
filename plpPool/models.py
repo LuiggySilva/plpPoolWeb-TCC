@@ -10,6 +10,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import signals
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 class CustomUserManager(BaseUserManager):
     """
@@ -42,7 +44,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(email, password, **extra_fields)
 
-
 class User(AbstractUser):
     username = models.CharField("Nome", max_length=150, blank=False, null=False)
     email = models.EmailField(_('email address'), unique=True, blank=False, null=False)
@@ -56,10 +57,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email}"
-
-def user_pre_save(signal, instance, sender, **kwargs):
-    instance.slug = slugify(instance.username)
-signals.pre_save.connect(user_pre_save, sender=User)
 
 
 
@@ -81,13 +78,16 @@ class Monitor(User):
         verbose_name = "Monitor"
         verbose_name_plural = "Monitores"
 
-def monitor_pre_save(signal, instance, sender, **kwargs):
-    instance.set_password(instance.matricula)
-signals.pre_save.connect(monitor_pre_save, sender=Monitor)
-
 
 
 class Professor(User):
+    identificador = models.CharField(
+        max_length=9,
+        unique=True, 
+        blank=False, 
+        null=False
+    )
+
     def __str__(self):
         return f"{self.email}"
 
@@ -126,6 +126,7 @@ class Linguagem(models.Model):
         verbose_name_plural = "Linguagens"
 
 
+
 class Questao(models.Model):
     enunciado = models.CharField(max_length=150, blank=False, null=False)
     codigo = models.TextField("Código", blank=False)
@@ -151,11 +152,6 @@ class Questao(models.Model):
     class Meta:
         verbose_name = "Questão"
         verbose_name_plural = "Questões"
-        
-def questao_post_save(signal, instance, sender, **kwargs):
-    instance.codigo = instance.codigo.strip()
-    instance.descricao = instance.descricao.strip()
-signals.post_save.connect(questao_post_save, sender=Questao)
 
 
 
@@ -190,7 +186,6 @@ class Atividade(models.Model):
 
     def __str__(self):
         return f"{self.data} • {self.periodo}"
-
 
     class Meta:
         verbose_name = "Atividade"
@@ -235,7 +230,7 @@ class Periodo(models.Model):
         null=False,
         validators=[PERIODO_REGEX] 
     )
-    monitores = models.ManyToManyField(Monitor, blank=False)
+    monitores = models.ManyToManyField(Monitor, blank=False, related_name='monitores')
     ativo = models.BooleanField(
         default=True, 
         blank=False, 
@@ -249,3 +244,56 @@ class Periodo(models.Model):
     class Meta:
         verbose_name = "Período"
         verbose_name_plural = "Períodos"
+
+
+
+class BackupDB(models.Model):
+    file = models.FileField(upload_to="backup/")
+    date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.file.name}"
+
+
+#signals
+
+def user_pre_save(signal, instance, sender, **kwargs):
+    instance.slug = slugify(instance.username)
+signals.pre_save.connect(user_pre_save, sender=User)
+
+
+def monitor_pre_save(signal, instance, sender, **kwargs):
+    instance.set_password(instance.matricula)
+signals.pre_save.connect(monitor_pre_save, sender=Monitor)
+
+
+def professor_pre_save(signal, instance, sender, **kwargs):
+    instance.is_staff = True
+    instance.is_superuser = True
+    instance.set_password(instance.identificador)
+signals.pre_save.connect(professor_pre_save, sender=Professor)
+
+
+def questao_post_save(signal, instance, sender, **kwargs):
+    instance.codigo = instance.codigo.strip()
+    instance.descricao = instance.descricao.strip()
+signals.post_save.connect(questao_post_save, sender=Questao)
+
+
+def atividade_post_save(signal, instance, sender, **kwargs):
+    if(instance.periodo.ativo):
+        message = render_to_string(
+            'plpPool/email_atividade.html', 
+            context={
+                'atividade': instance
+            }
+        )
+        if(not kwargs['created']):
+            mail_subject = 'plpPoolWeb: Atividade alterada'
+        else:
+            mail_subject = 'plpPoolWeb: Nova atividade'
+        to_email = [email[0] for email in list(Periodo.objects.get(id=instance.periodo.id).monitores.all().values_list('email'))]
+        email = EmailMessage(mail_subject, message, to=to_email)
+        email.content_subtype = "html"
+        email.send()
+signals.post_save.connect(atividade_post_save, sender=Atividade)
