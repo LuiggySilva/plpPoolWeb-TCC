@@ -53,7 +53,7 @@
             {% endblock %}
             {% block userlinks %}
                 {% if user.has_usable_password %}
-                <a href="{% url 'reset_password' %}">{% translate 'Change password' %}</a> /
+                <a href="{% url 'plpPool:alterar_senha' %}">{% translate 'Change password' %}</a> /
                 {% endif %}
                 <a href="{% url 'logout' %}">{% translate 'Log out' %}</a>
             {% endblock %}

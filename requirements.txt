@@ -9,14 +9,16 @@ dj-database-url==0.5.0
 Django==3.2.16
 django-admin-multiple-choice-list-filter==0.1.1
 django-crispy-forms==1.14.0
+django-apscheduler==0.6.2
 django-debug-toolbar==3.4.0
+django-filter==22.1
 django-on-heroku==1.1.2
 gunicorn==20.1.0
 idna==2.10
 psycopg2-binary==2.9.3
 pycparser==2.21
-pygments
 PyGithub==1.55
+Pygments==2.13.0
 PyJWT==2.4.0
 PyNaCl==1.5.0
 python-decouple==3.6
@@ -26,4 +28,4 @@ sqlparse==0.4.2
 urllib3==1.26.9
 whitenoise==6.2.0
 wrapt==1.14.1
-django_filter==22.1
+django-apscheduler==3.9.1

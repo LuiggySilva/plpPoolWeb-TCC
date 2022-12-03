@@ -9,9 +9,11 @@ from .models import (
     Linguagem,
     Periodo,
     Atividade,
-    Teste
+    Teste,
+    BackupDB
 )
 from .forms import QuestaoForm, PeriodoForm
+
 
 
 class TesteInline(admin.StackedInline):
@@ -19,9 +21,11 @@ class TesteInline(admin.StackedInline):
     extra = 0
 
 
+
 @admin.register(Linguagem)
 class LinguagemAdmin(admin.ModelAdmin):
     list_display = ('nome', 'extensao', 'compilador')
+
 
 
 @admin.register(Tag)
@@ -50,6 +54,7 @@ class TagsListFilter(MultipleChoiceListFilter):
         return queryset.distinct()
 
 
+
 @admin.register(Monitor)
 class MonitorAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email', 'matricula')
@@ -70,23 +75,23 @@ class MonitorAdmin(admin.ModelAdmin):
     )
 
 
+
 @admin.register(Professor)
 class ProfessorAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email')
     fieldsets = (
-        ('Dados', {'fields': ('username', 'email')}),
+        ('Dados', {'fields': ('identificador','username', 'email', 'is_staff', 'is_superuser')}),
     )
     list_display = ('username', 'email')
     exclude = (
         'last_login',
-        'is_superuser',
         'groups',
         'user_permissions',
         'first_name',
         'last_name',
-        'is_staff', 
         'slug'
     )
+
 
 
 class PeriodoListFilter(MultipleChoiceListFilter):
@@ -105,6 +110,7 @@ class PeriodoListFilter(MultipleChoiceListFilter):
             for periodo_pk in pks:
                 queryset = queryset.filter(periodo__pk=periodo_pk)
         return queryset.distinct()
+
 
 
 @admin.register(Questao)
@@ -137,6 +143,8 @@ class QuestaoAdmin(admin.ModelAdmin):
             o.delete()
     delete_selected.short_description = 'Remover questões selecionadas'
 
+
+
 @admin.register(Atividade)
 class AtividadeAdmin(admin.ModelAdmin):
     search_fields = ('assunto',)
@@ -157,6 +165,7 @@ class AtividadeAdmin(admin.ModelAdmin):
 class AtividadeInline(admin.StackedInline):
     model = Atividade
     extra = 0
+
 
 
 @admin.register(Periodo)

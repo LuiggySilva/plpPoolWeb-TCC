@@ -6,11 +6,15 @@
 {% block branding %} <h1 class="site-name"> <a href="{% url 'plpPool:pagina_inicial' %}">plpPoolWeb</a> </h1> {% endblock %}
 
 {% block usertools %}
-{% endblock %}
-
-{% block breadcrumbs %}
-<!-- NAVBAR -->
-<div class="breadcrumbs">
+<div id="user-tools">
+    {% block welcome-msg %}
+    {% translate 'Welcome,' %}
+    <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+    {% endblock %}
+    {% block userlinks %}
+        <a href="{% url 'plpPool:alterar_senha' %}">{% translate 'Change password' %}</a> /
+        <a href="{% url 'logout' %}">{% translate 'Log out' %}</a>
+    {% endblock %}
 </div>
 {% endblock %}
 
@@ -22,15 +26,7 @@
     <div style="margin-top: 10px;">
         <form method="post">
             {% csrf_token %}
-            {% for field in form %}
-                <div>
-                    {{ field.errors }}
-                    {{ field.label_tag }} {{ field }}
-                    {% if field.help_text %}
-                    <p>{{ field.help_text|safe }}</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
+            {{form}}
             <center>
                 <button type="submit" class="bnt-submit"> Alterar </button>
             </center>

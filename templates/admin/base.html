@@ -32,7 +32,7 @@
     <div id="header">
         <div id="branding">
         {% block branding %}{% endblock %}
-        </div>
+      </div>
         {% block usertools %}
         {% if has_permission %}
         <div id="user-tools">
@@ -57,6 +57,20 @@
             {% endblock %}
         </div>
         {% endif %}
+        <div>
+          <!--TODO: Deixar bunito e mudar de lugar a parte de backup -->
+          <center>
+            <form action="{% url 'plpPool:db_backup' %}">
+              {% csrf_token %}
+              <button type="submit">Backup DB</button>
+            </form>
+            <form action="{% url 'plpPool:load_db_backup' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{db_backup_form.as_p}}
+              <button type="submit">Load DB backup</button>
+            </form>
+          </center>
+        </div>
         {% endblock %}
         {% block nav-global %}{% endblock %}
     </div>
