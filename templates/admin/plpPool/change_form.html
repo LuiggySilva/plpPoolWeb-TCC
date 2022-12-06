@@ -144,30 +144,30 @@
     <div class="preview_field">
       <details >
         <summary style="cursor: pointer;"> Compilador </summary>
-        <form action="" method="post">
-          <textarea id="saida" style="width: 97%; min-height: 8em" placeholder="Entrada"></textarea>
+          <textarea id="entrada" style="width: 97%; min-height: 8em" placeholder="Entrada"></textarea>
           <div id="compilador_saida">
             <textarea id="saida" style="width: 97%; min-height: 8em" readonly placeholder="Saída"></textarea>
           </div>
           <center>
-            <button type="submit" class="bnt-submit"> Executar </button>
+            <button class="bnt-submit" onclick="run_test()"> Executar </button>
           </center>
-        </form>
       </details>
     </div>
     <hr style="margin-top: 15px;">
 
     <div class="preview_field">
-      <button class="empty-bnt" title="Copiar" onclick="clipboard('testes')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
-      <input id="testes" type="hidden" value="{{adminform.form.instance.testes.all|tests_to_clipboard}}">
-
-      <label for="testes"> Testes: </label>
-      <button class="bnt-submit" title="Executar todos testes"> RUN </button>
+      <div id="run_tests_header">
+        <button class="empty-bnt" title="Copiar" onclick="clipboard('testes')"><i style="font-size:18px" class="fa">&#xf0ea;</i></button>
+        <label for="testes"> Testes: </label>
+        <button onclick="run_tests()" class="bnt-submit" title="Executar todos testes"> RUN </button>
+        <img src="{%static 'images/loading.svg' %}" id="loading_img" style="visibility:hidden">
+      </div>
       <div id="testes">
         {% for teste in adminform.form.instance.testes.all %}
         <ul class="border">
           <li style="display: inline;"> 
             <h3 style="text-decoration: underline;"> Teste <strong> #{{ forloop.counter }} </strong> - {{ teste.tipo }}</h3>
+            <input type="hidden" name="teste_id" value="{{teste.id}}">
             <div class="overflow-div" >
               <div class="test_title">
                 <img class="test_icon" src="{% static 'images/right_to_bracket.svg' %}"> 
@@ -194,9 +194,10 @@
 
           <details style="margin-bottom: 5px;">
             <summary style="cursor: pointer;"> Execução: </summary>
-            <div class="border" style="width: 98.9%; padding:5px"> ... </div>
+            <div style="width: 98.9%; padding:5px">
+              <textarea class="testes-run-outputs" style="width: 97%; min-height: 8em" readonly placeholder="Saída"></textarea>
+            </div>
           </details>
-
         </ul>
         {% empty %}
           <h2> Nenhum teste adicionado </h2>
@@ -205,6 +206,48 @@
     </div>
   </div>
   {% endif %}
+
+  <script defer>
+    async function run_test() {
+      let entrada = document.getElementById("entrada").value;
+      await fetch("{% url 'plpPool:run_test' %}", {
+          method: 'POST',
+          body: JSON.stringify({'questao_id':'{{adminform.form.instance.id}}', 'entrada':entrada}),
+          headers: {
+              'Accept': 'application/json',
+          },
+      })
+      .then(response => response.json())
+      .then(text => document.getElementById("saida").value = text['output'])
+    }
+    async function run_tests() {
+      let loading = document.getElementById("loading_img")
+      loading.setAttribute('style','visibility:visible');
+      await fetch("{% url 'plpPool:run_all_tests' %}", {
+        method: 'POST',
+        body: JSON.stringify({'questao_id':'{{adminform.form.instance.id}}'}),
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(text => {
+        document.querySelectorAll(".testes-run-outputs").forEach(function(ta, i){
+          if(text[i]["passou"]){
+            ta.value = text[i]["output"]
+            ta.parentElement.parentElement.style.color = 'green';
+            ta.style.color = 'green';
+          } else {
+            ta.value = text[i]["output"]
+            ta.parentElement.parentElement.style.color = 'red';
+            ta.style.color = 'red';
+          }
+        })
+        loading.setAttribute('style','visibility:hidden');
+      })
+    }
+  </script>
+
 
 {% if opts.model_name == "questao" and request.path|verify_url %}
     <div id="content-main" style="display: none;">

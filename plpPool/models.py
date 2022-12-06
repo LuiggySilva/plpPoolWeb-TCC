@@ -203,8 +203,8 @@ class Teste(models.Model):
         related_name="testes", 
         on_delete=models.CASCADE
     )
-    entrada = models.TextField()
-    saida = models.TextField("Saída")
+    entrada = models.TextField(blank=True)
+    saida = models.TextField("Saída", blank=True)
     tipo = models.CharField(
         max_length=7, 
         choices=Tipo.choices, 

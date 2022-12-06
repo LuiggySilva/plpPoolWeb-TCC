@@ -3,13 +3,14 @@ from django.urls import reverse_lazy
 from django.forms import modelformset_factory
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from django.http import HttpResponseRedirect, FileResponse
+from django.http import HttpResponseRedirect, FileResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import (
     TemplateView, 
     ListView, 
@@ -258,3 +259,84 @@ class MonitorView(TemplateView):
             'atividades': atividades,
             'questoes': questoes
         })
+
+
+
+def run_compiler(teste=None, commands=None, entrada=None):
+    shell = os.name == 'nt'
+    executor = commands
+    exect = subprocess.Popen(
+        executor, 
+        stdin=subprocess.PIPE, 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE, 
+        universal_newlines=True, 
+        shell=shell
+    )
+    if entrada:
+        for line in entrada:
+            exect.stdin.write(line + "\n")
+    else:
+        for line in teste.entrada.split("\n"):
+            exect.stdin.write(line + "\n")
+    
+    output, output_err = exect.communicate()
+    return_code = exect.wait(timeout=10)
+
+    if teste:
+        if(output_err):
+            return {"output":output_err, "passou": output == teste.saida.replace("\r\n", "\n")}
+        else:
+            return {"output":output, "passou": output == teste.saida.replace("\r\n", "\n")}
+    else:
+        if(output_err):
+            return {"output":output_err}
+        else:
+            return {"output":output}
+
+@login_required
+@user_passes_test(check_staff_superuser)
+@csrf_exempt
+def run_test(request):
+    body = json.loads(request.body.decode('utf-8'))
+    questao = Questao.objects.get(id=body['questao_id'])
+    entrada = body['entrada'].split("\n")
+
+    linguagem_comando = questao.linguagem.executar.split(" ")
+    linguagem_extensao = questao.linguagem.extensao
+    _file = 'media/scripts/script' + linguagem_extensao
+    commands = linguagem_comando + [_file]
+
+    try:
+        with open(_file, 'w') as f:
+            f.write(questao.codigo)
+        teste_output = run_compiler(entrada=entrada, commands=commands)
+        return JsonResponse(teste_output, safe=False)
+    except Exception as e:
+        return JsonResponse({"erro": "server_error", "output": f"{e}", "passou": False}, safe=False)
+    finally:
+        os.remove(_file)
+
+@login_required
+@user_passes_test(check_staff_superuser)
+@csrf_exempt
+def run_all_tests(request):
+    body = json.loads(request.body.decode('utf-8'))
+    questao = Questao.objects.get(id=body['questao_id'])
+
+    linguagem_comando = questao.linguagem.executar.split(" ")
+    linguagem_extensao = questao.linguagem.extensao
+    _file = 'media/scripts/script' + linguagem_extensao
+    commands = linguagem_comando + [_file]
+
+    try:
+        testes_outputs = []
+        for teste in questao.testes.all():
+            with open(_file, 'w') as f:
+                f.write(questao.codigo)
+            testes_outputs.append(run_compiler(teste=teste, commands=commands))
+        return JsonResponse(testes_outputs, safe=False)
+    except Exception as e:
+        return JsonResponse({"erro": "server_error", "output": f"{e}", "passou": False}, safe=False)
+    finally:
+        os.remove(_file)
