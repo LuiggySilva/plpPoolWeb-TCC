@@ -13,6 +13,6 @@ urlpatterns = [
     path('alterar_senha', views.alterar_senha, name="alterar_senha"),
     path('db_backup', views.dumpdata, name="db_backup"),
     path('load_db_backup', views.load_dumpdata, name="load_db_backup"),
-    #path('run_test', views.run_test, name='run_test'),
-    #path('run_all_tests', views.run_all_tests, name='run_all_tests'),
+    path('run_test', views.run_test, name='run_test'),
+    path('run_all_tests', views.run_all_tests, name='run_all_tests'),
 ]

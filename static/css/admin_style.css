@@ -137,6 +137,9 @@
         width: 15px;
         margin-right: 5px;
     }
+    #loading_img {
+        filter: invert(0);
+    }
 }
 /* Apply a dark color scheme */
 @media (prefers-color-scheme: dark) {
@@ -146,6 +149,11 @@
         margin-right: 5px;
         filter: invert(100%);
     }
+    #loading_img {
+        filter: invert(1);
+        width: 30px;
+        height: 30px;
+    }
 }
 
 .test_title {
@@ -154,3 +162,20 @@
     justify-content: flex-start;
     flex-direction: row;
 }
+
+#run_tests_header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#run_tests_header label {
+    margin-right: 10px;
+}
+#run_tests_header img {
+    margin-left: 10px;
+}
+
