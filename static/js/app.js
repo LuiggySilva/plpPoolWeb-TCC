@@ -204,3 +204,18 @@ function clipboard(element_id) {
   var copyText = document.getElementById(element_id);
   navigator.clipboard.writeText(copyText.value);
 }
+
+function showBackupForm() {
+  let bnt = document.getElementById("id_file");
+  let menu = document.getElementById("backup-container-form");
+  if (menu.getAttribute('style') == 'display: none;') {
+    menu.setAttribute('style', 'display: block;');
+  } else {
+    menu.setAttribute('style', 'display: none;');
+  }
+}
+
+function setBackupFileNameInBNT(elem){
+  let bnt = document.getElementById("id_file");
+  document.querySelector('[for="id_file"]').innerHTML = bnt.value.split("\\").slice(-1)[0];
+}

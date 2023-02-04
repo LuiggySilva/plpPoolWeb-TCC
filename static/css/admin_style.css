@@ -139,6 +139,11 @@
     }
     #loading_img {
         filter: invert(0);
+        width: 30px;
+        height: 30px;
+    }
+    #backup-container label {
+        color: black;
     }
 }
 /* Apply a dark color scheme */
@@ -153,6 +158,9 @@
         filter: invert(1);
         width: 30px;
         height: 30px;
+    }
+    #backup-container label{
+        color: white;
     }
 }
 
@@ -170,6 +178,8 @@
     align-content: center;
     justify-content: flex-start;
     align-items: center;
+    height: 20px;
+    margin-top: 20px;
 }
 
 #run_tests_header label {
@@ -179,3 +189,56 @@
     margin-left: 10px;
 }
 
+#backup_form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: baseline;
+}
+
+@media only screen and (hover: none) and (pointer: coarse){
+    #backup-container {
+        margin-top: 10px;
+    }   
+    #bnt-backup-show {
+        margin-top: 5px;
+    }
+}
+
+input[type=file]::file-selector-button, .backup-bnt, #backup_form label {
+    width: 125px;
+    height: 25px;
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+#img_backup {
+    width: 30px;
+    height: 30px;
+}
+
+#bnt-backup-show {
+    background: none;
+    border: 1px solid white;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+#bnt-backup-show:hover {
+    filter: invert(1);
+}
+
+hr {
+    margin-top: 15px;
+    background-color: var(--body-fg);;
+}
+
+#backup_form label {
+    border: 1px solid white;
+    border-radius: 2px;
+    padding: 2px;
+    margin-right: 4px;
+}

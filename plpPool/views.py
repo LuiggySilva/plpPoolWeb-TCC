@@ -85,7 +85,7 @@ def feedback(request):
 @login_required
 def remover_questao_monitor(request, pk):
     q = get_object_or_404(Questao, pk=pk)
-    if (request.user != q.autor):
+    if (request.user.email != q.autor.email):
         return redirect(reverse_lazy("plpPool:monitor_questoes"))
     q.delete()
     return redirect(reverse_lazy("plpPool:monitor_questoes"))
@@ -96,8 +96,7 @@ def remover_questao_monitor(request, pk):
 def editar_questao_monitor(request, pk):
     context ={}
     q = get_object_or_404(Questao, pk=pk)
-
-    if (request.user != q.autor):
+    if (request.user.email != q.autor.email):
         return redirect(reverse_lazy("plpPool:monitor_questoes"))
 
     form = QuestaoForm(request.POST or None, instance=q)
@@ -156,7 +155,7 @@ def run_shell_command(inputs=None, commands=None):
 def dumpdata(request):
     output = run_shell_command(
         commands=[
-            'python',
+            'python3',
             'manage.py',
             'dumpdata',
             'plpPool'
@@ -223,7 +222,8 @@ class MonitorView(TemplateView):
             'formset': formset,
             'atividades': atividades,
             'questoes': questoes,
-            'progresso': progresso
+            'progresso': progresso,
+            'periodo': periodo_ativo
         })
 
     def post(self, *args, **kwargs):
@@ -262,8 +262,9 @@ class MonitorView(TemplateView):
 
 
 
-def run_compiler(teste=None, commands=None, entrada=None):
+def run_compiler(teste=None, commands=None, entrada=None, extensao=None):
     shell = os.name == 'nt'
+    
     executor = commands
     exect = subprocess.Popen(
         executor, 
@@ -273,6 +274,19 @@ def run_compiler(teste=None, commands=None, entrada=None):
         universal_newlines=True, 
         shell=shell
     )
+    if extensao == '.c' or extensao == '.cpp':
+        output, output_err = exect.communicate()
+        return_code = exect.wait(timeout=10)
+        if not return_code:
+            exect = subprocess.Popen(
+                'media/scripts/a.out',
+                stdin=subprocess.PIPE, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                universal_newlines=True, 
+                shell=shell
+            )
+
     if entrada:
         for line in entrada:
             exect.stdin.write(line + "\n")
@@ -285,14 +299,14 @@ def run_compiler(teste=None, commands=None, entrada=None):
 
     if teste:
         if(output_err):
-            return {"output":output_err, "passou": output == teste.saida.replace("\r\n", "\n")}
+            return {"output":output_err.rstrip(), "passou": output.rstrip() == teste.saida.replace("\r\n", "\n").rstrip()}
         else:
-            return {"output":output, "passou": output == teste.saida.replace("\r\n", "\n")}
+            return {"output":output.rstrip(), "passou": output.rstrip() == teste.saida.replace("\r\n", "\n").rstrip()}
     else:
         if(output_err):
-            return {"output":output_err}
+            return {"output":output_err.rstrip()}
         else:
-            return {"output":output}
+            return {"output":output.rstrip()}
 
 @login_required
 @user_passes_test(check_staff_superuser)
@@ -305,17 +319,22 @@ def run_test(request):
     linguagem_comando = questao.linguagem.executar.split(" ")
     linguagem_extensao = questao.linguagem.extensao
     _file = 'media/scripts/script' + linguagem_extensao
-    commands = linguagem_comando + [_file]
+    if linguagem_extensao == ".cpp" or linguagem_extensao == ".c":
+        commands = [linguagem_comando[0]] + [_file] + [linguagem_comando[1]] + ['-o', 'media/scripts/a.out']
+    else:
+        commands = linguagem_comando + [_file]
 
     try:
         with open(_file, 'w') as f:
             f.write(questao.codigo)
-        teste_output = run_compiler(entrada=entrada, commands=commands)
+        teste_output = run_compiler(entrada=entrada, commands=commands, extensao=linguagem_extensao)
         return JsonResponse(teste_output, safe=False)
     except Exception as e:
         return JsonResponse({"erro": "server_error", "output": f"{e}", "passou": False}, safe=False)
     finally:
         os.remove(_file)
+        if linguagem_extensao == ".cpp" or linguagem_extensao == ".c":
+            os.remove('media/scripts/a.out')
 
 @login_required
 @user_passes_test(check_staff_superuser)
@@ -327,16 +346,21 @@ def run_all_tests(request):
     linguagem_comando = questao.linguagem.executar.split(" ")
     linguagem_extensao = questao.linguagem.extensao
     _file = 'media/scripts/script' + linguagem_extensao
-    commands = linguagem_comando + [_file]
+    if linguagem_extensao == ".cpp" or linguagem_extensao == ".c":
+        commands = [linguagem_comando[0]] + [_file] + [linguagem_comando[1]] + ['-o', 'media/scripts/a.out']
+    else:
+        commands = linguagem_comando + [_file]
 
     try:
         testes_outputs = []
         for teste in questao.testes.all():
             with open(_file, 'w') as f:
                 f.write(questao.codigo)
-            testes_outputs.append(run_compiler(teste=teste, commands=commands))
+            testes_outputs.append(run_compiler(teste=teste, commands=commands, extensao=linguagem_extensao))
         return JsonResponse(testes_outputs, safe=False)
     except Exception as e:
         return JsonResponse({"erro": "server_error", "output": f"{e}", "passou": False}, safe=False)
     finally:
         os.remove(_file)
+        if linguagem_extensao == ".cpp" or linguagem_extensao == ".c":
+            os.remove('media/scripts/a.out')

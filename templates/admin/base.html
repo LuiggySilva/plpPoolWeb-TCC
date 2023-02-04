@@ -15,6 +15,7 @@
 {% block responsive %}
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/admin_style.css" %}">
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
 {% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
@@ -36,41 +37,61 @@
         {% block usertools %}
         {% if has_permission %}
         <div id="user-tools">
-            {% block welcome-msg %}
-                {% translate 'Welcome,' %}
-                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
-            {% endblock %}
-            {% block userlinks %}
-                {% if site_url %}
-                    <a href="{{ site_url }}">{% translate 'View site' %}</a> /
-                {% endif %}
-                {% if user.is_active and user.is_staff %}
-                    {% url 'django-admindocs-docroot' as docsroot %}
-                    {% if docsroot %}
-                        <a href="{{ docsroot }}">{% translate 'Documentation' %}</a> /
-                    {% endif %}
-                {% endif %}
-                {% if user.has_usable_password %}
-                <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
+          {% if request.user_agent.is_mobile %}
+            <div>
+          {% endif %}
+              {% block welcome-msg %}
+              {% translate 'Welcome,' %}
+              <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+              {% endblock %}
+          {% if request.user_agent.is_mobile %}
+            </div>
+          {% endif %}
+          {% if request.user_agent.is_mobile %}
+            <div>
+          {% endif %}
+              {% block userlinks %}
+              {% if site_url %}
+              <a href="{{ site_url }}">{% translate 'View site' %}</a> /
+              {% endif %}
+              {% if user.is_active and user.is_staff %}
+              {% url 'django-admindocs-docroot' as docsroot %}
+              {% if docsroot %}
+              <a href="{{ docsroot }}">{% translate 'Documentation' %}</a> /
+              {% endif %}
+              {% endif %}
+              {% if user.has_usable_password %}
+              <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
                 {% endif %}
                 <a href="{% url 'admin:logout' %}">{% translate 'Log out' %}</a>
-            {% endblock %}
+                {% endblock %}
+            {% if request.user_agent.is_mobile %}
+            </div>
+            {% endif %}
         </div>
         {% endif %}
-        <div>
-          <!--TODO: Deixar bunito e mudar de lugar a parte de backup -->
-          <center>
-            <form action="{% url 'plpPool:db_backup' %}">
-              {% csrf_token %}
-              <button type="submit">Backup DB</button>
-            </form>
-            <form action="{% url 'plpPool:load_db_backup' %}" method="POST" enctype="multipart/form-data">
-              {% csrf_token %}
-              {{db_backup_form.as_p}}
-              <button type="submit">Load DB backup</button>
-            </form>
-          </center>
-        </div>
+      {% if request.path != '/login' %}
+        <div id="backup-container" >
+          <div id="backup-container-form" style="display: none;">
+            <center>
+              <form action="{% url 'plpPool:db_backup' %}">
+                  {% csrf_token %}
+                  <button class="backup-bnt" type="submit"> Download Backup</button>
+                </form>
+              </center>
+              <div id="backup_form">
+                <form id="load" action="{% url 'plpPool:load_db_backup' %}" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {{db_backup_form}}
+                </form>
+                <button class="backup-bnt" type="submit" form="load">Upload Backup</button>
+              </div>
+            </div>
+          </div>
+          <button id="bnt-backup-show" title="Backup" onclick="showBackupForm()">
+            <img src="{% static 'images/backup.png' %}" id="img_backup">
+          </button>
+        {% endif %}
         {% endblock %}
         {% block nav-global %}{% endblock %}
     </div>

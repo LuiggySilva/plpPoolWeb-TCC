@@ -59,9 +59,9 @@ class TagsListFilter(MultipleChoiceListFilter):
 class MonitorAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email', 'matricula')
     fieldsets = (
-        ('Dados', {'fields': ('username', 'email', 'matricula', 'is_active')}),
+        ('Dados', {'fields': ('username', 'email', 'matricula', 'github', 'is_active')}),
     )
-    list_display = ('username', 'email', 'matricula', 'is_active')
+    list_display = ('username', 'github', 'email', 'matricula', 'is_active')
     exclude = (
         'password',
         'last_login',
@@ -73,7 +73,7 @@ class MonitorAdmin(admin.ModelAdmin):
         'is_staff', 
         'slug'
     )
-
+    
 
 
 @admin.register(Professor)

@@ -43,7 +43,7 @@ def task():
 
 def start():
     scheduler = BackgroundScheduler(timezone='America/Sao_Paulo')
-    scheduler.add_job(task, 'interval', minutes=1, max_instances=1, replace_existing=True)
-    # teoricamente todo dia as 05hrs da manhã
-    #scheduler.add_job(task, 'cron', hour=5, max_instances=1, replace_existing=True)
+    #Todo dia as 05hrs da manhã
+    scheduler.add_job(task, 'cron', hour=5, max_instances=1, replace_existing=True)
     scheduler.start()
+    

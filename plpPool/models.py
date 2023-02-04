@@ -70,9 +70,17 @@ class Monitor(User):
         blank=False, 
         null=False
     )
+    
+    github = models.CharField(
+	"GitHub",
+        max_length=250,
+        unique=True, 
+        blank=False, 
+        null=False
+    )
 
     def __str__(self):
-        return f"{self.email}"
+        return  f"{self.github}" if int(self.matricula) < 100 else f"{self.username}" 
 
     class Meta:
         verbose_name = "Monitor"
@@ -256,6 +264,27 @@ class BackupDB(models.Model):
 
 
 #signals
+
+def monitor_post_save(signal, instance, sender, **kwargs):
+
+    from django.contrib.sites.models import Site
+    domain = Site.objects.get_current().domain
+    url = 'http://{domain}'.format(domain=domain)
+
+    if(kwargs['created']):
+        mail_subject = 'plpPoolWeb: Login Monitor'
+        message = render_to_string(
+            'plpPool/email_monitor.html', 
+            context={
+                'site': url,
+                'instance': instance
+            }
+        )
+        to_email = [instance.email]
+        email = EmailMessage(mail_subject, message, to=to_email)
+        email.content_subtype = "html"
+        email.send()
+signals.post_save.connect(monitor_post_save, sender=Monitor)
 
 def user_pre_save(signal, instance, sender, **kwargs):
     instance.slug = slugify(instance.username)

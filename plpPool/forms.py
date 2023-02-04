@@ -146,11 +146,15 @@ class PeriodoForm(forms.ModelForm):
 
 
 class BackupDBForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BackupDBForm, self).__init__(*args, **kwargs)
+        self.fields['file'].label = "Escolher arquivo"
+    
     class Meta:
         model = BackupDB
         fields = ['file',]
         widgets = {
             "file": forms.FileInput(attrs={
-                'accept': ".json"}
+                'accept': ".json", "hidden":"", 'onchange':"setBackupFileNameInBNT(this)"}
             ),
         }
