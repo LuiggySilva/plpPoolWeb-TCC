@@ -326,7 +326,10 @@ def run_test(request):
 
     try:
         with open(_file, 'w') as f:
-            f.write(questao.codigo)
+            if (linguagem_extensao == ".hs"):
+                f.write("{-# OPTIONS_GHC -fno-warn-tabs #-}\n" + questao.codigo)
+            else:
+                f.write(questao.codigo)
         teste_output = run_compiler(entrada=entrada, commands=commands, extensao=linguagem_extensao)
         return JsonResponse(teste_output, safe=False)
     except Exception as e:
@@ -355,7 +358,10 @@ def run_all_tests(request):
         testes_outputs = []
         for teste in questao.testes.all():
             with open(_file, 'w') as f:
-                f.write(questao.codigo)
+                if (linguagem_extensao == ".hs"):
+                    f.write("{-# OPTIONS_GHC -fno-warn-tabs #-}\n" + questao.codigo)
+                else:
+                    f.write(questao.codigo)
             testes_outputs.append(run_compiler(teste=teste, commands=commands, extensao=linguagem_extensao))
         return JsonResponse(testes_outputs, safe=False)
     except Exception as e:
