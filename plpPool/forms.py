@@ -135,11 +135,12 @@ class PeriodoForm(forms.ModelForm):
                     _('Outro período já está ativo'),
                 )
 
-        cd.get('monitores').all().update(is_active=cd.get('ativo'))
+        if cd.get('monitores'):
+            cd.get('monitores').all().update(is_active=cd.get('ativo'))
 
-        Monitor.objects.exclude(
-            matricula__in=cd.get('monitores').values_list('matricula')
-        ).update(is_active=False)
+            Monitor.objects.exclude(
+                matricula__in=cd.get('monitores').values_list('matricula')
+            ).update(is_active=False)
             
         return cd
 
