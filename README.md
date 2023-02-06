@@ -23,3 +23,5 @@ SERVER_EMAIL=<string>
 7. Criar um supe-usuário com email e senha válidos (acesso a pagina de admin): `docker-compose exec web python manage.py createsuperuser`
 
 A aplicação estará disponivel na url: http://127.0.0.1:8000/
+
+Para **interroper a execução da aplicação** basta executar o seguinte comando: `docker-compose down`
