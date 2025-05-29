@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Confirm email" %}{% endblock title %}
+
+{% block head %}
+    {{form.media}}
+{% endblock head %}
+
+{% block content %}
+
+    <div class="container my-4">
+        <div class="text-center">
+            <div class="text-center">
+                <h1><i class="bi bi-envelope-exclamation"></i> {% trans "Confirm email address" %}</h1>
+                <hr>
+            </div>
+
+            <div class="p-3 rounded bg-secondary-subtle">
+                {% if confirmation %}
+                    {% if can_confirm %}
+                        {% with confirmation.email_address.email as email %}
+                            <p>{% trans "Please confirm that" %} <a href="mailto:{{ email }}">{{ email }}</a> {% trans "is an email address for the user" %} <b>{{confirmation.email_address.user.full_name}}</b></p>
+                        {% endwith %}
+    
+                        {% url 'account_confirm_email' confirmation.key as action_url %}
+                        <form method="POST" action="{{ action_url }}">
+                            {% csrf_token %}
+                            {{ redirect_field }}
+                            {{form|crispy}}
+                
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-lg btn-success w-50 mt-2"><i class="bi bi-check-circle-fill"></i> {% trans "Confirm" %}</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="form-text">{% trans "Unable to confirm" %} {{email}} {% trans "because it has already been confirmed by a different account." %}</p>
+                    {% endif %}
+                {% else %}
+                    <p class="form-text">{% trans "This email confirmation link has expired or is invalid." %}</p>
+                {% endif %}
+            </div>
+
+        </div>        
+
+    </div>
+{% endblock content %}

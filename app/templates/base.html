@@ -1,0 +1,53 @@
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<html data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, post-check=0, pre-check=0" /> 
+        <meta http-equiv="Pragma" content="no-cache" />
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+        <title>{% block title %}{% endblock title %}</title>
+
+        <!-- HEAD -->
+        {% block head %}
+        {% endblock head %}
+    </head>
+    <body>
+        <div class="wrapper">
+            <!-- HEADER -->
+            {% include 'header.html' %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} text-center mx-2">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- MAIN_CONTENT -->
+            <main class="content py-3">
+                {% block content %}
+                {% endblock content %}
+            </main>
+
+            <!-- MODAL -->
+            {% block modal %}
+            {% endblock modal %}
+
+            <!-- FOOTER -->
+            {% include 'footer.html' %}
+        </div>
+
+        <!-- INLINE_JS -->
+        {% block inline_js %}
+        {% endblock inline_js %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>

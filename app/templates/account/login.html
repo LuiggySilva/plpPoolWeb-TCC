@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Login" %}{% endblock title %}
+
+{% block head %}
+    {{form.media}}
+{% endblock head %}
+
+{% block content %}
+    <div class="container mb-4">
+        <h1 class="text-center"><i class="bi bi-person"></i> {% trans "Login" %}</h1>
+
+        <hr>
+        
+        <div class="d-flex flex-row justify-content-center align-items-center">
+            <form method="POST" action="{% url 'account_login' %}" class="w-50 p-3 rounded bg-secondary-subtle">
+                {% csrf_token %}
+                {{ redirect_field }}
+                {{form|crispy}}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-lg btn-primary w-50 mt-2">{% trans "Login" %}</button>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'account_signup' %}">{% trans "Don't have an account?" %}</a>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+{% endblock content %}
