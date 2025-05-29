@@ -1,0 +1,41 @@
+services:
+
+  db:
+    image: postgres:14.0-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    environment:
+      - TZ="America/Sao_Paulo"
+      - POSTGRES_DB=${POSTGRES_NAME} 
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --access-logformat '%({x-forwarded-for}i)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - "8000:8000"
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - "PROD_ENVIROMENT=1"
+      - "DJANGO_SETTINGS_MODULE=core.settings"
+      - "DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_NAME}"
+    depends_on:
+      - db
+
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
