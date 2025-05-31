@@ -45,6 +45,10 @@ THIRD_PARTY_APPS = [
     "crispy_bootstrap5",
     # https://pypi.org/project/django-mathfilters/
     "mathfilters",
+    # https://pypi.org/project/django-solo/
+    "solo",
+    # https://pypi.org/project/django-widget-tweaks/
+    "widget_tweaks"
 ]
 LOCAL_APPS = [
     "user",
@@ -95,6 +99,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 EMAIL_SUBJECT_PREFIX = "[plpPoolWeb] "
 
 # https://docs.allauth.org/en/latest/account/configuration.html
+ACCOUNT_ADAPTER = "user.adapters.CustomAccountAdapter"
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_SUBJECT_PREFIX = EMAIL_SUBJECT_PREFIX
@@ -106,8 +111,8 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
+
 # https://docs.allauth.org/en/latest/account/forms.html
-ACCOUNT_FORMS = {"signup": "user.forms.CustomSignupForm"}
 '''
 ACCOUNT_FORMS = {
     'add_email': 'allauth.account.forms.AddEmailForm',
@@ -122,6 +127,10 @@ ACCOUNT_FORMS = {
     'user_token': 'allauth.account.forms.UserTokenForm',
 }
 '''
+
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
