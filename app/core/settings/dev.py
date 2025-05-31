@@ -12,6 +12,10 @@ INSTALLED_APPS += ["debug_toolbar", ]
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
 
 
+CELERY_BROKER_URL = 'memory://'
+CELERY_RESULT_BACKEND = 'cache+memory://'
+
+
 INTERNAL_IPS = [ 
     "127.0.0.1",
 ]

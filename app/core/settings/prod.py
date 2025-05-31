@@ -16,6 +16,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=str).split(" ")
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=str).split(" ")
 
 
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

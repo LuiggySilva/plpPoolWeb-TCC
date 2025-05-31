@@ -48,7 +48,11 @@ THIRD_PARTY_APPS = [
     # https://pypi.org/project/django-solo/
     "solo",
     # https://pypi.org/project/django-widget-tweaks/
-    "widget_tweaks"
+    "widget_tweaks",
+    # https://pypi.org/project/django-celery-beat/
+    "django_celery_beat",
+    # https://pypi.org/project/django-celery-results/
+    "django_celery_results",
 ]
 LOCAL_APPS = [
     "user",
@@ -232,3 +236,11 @@ MESSAGE_TAGS = {
     constants.SUCCESS: 'alert-success',
     constants.INFO: 'alert-info ',
 }
+
+
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE

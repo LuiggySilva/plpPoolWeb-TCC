@@ -13,6 +13,32 @@ services:
       - POSTGRES_USER=${POSTGRES_USER} 
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
+  redis:
+    image: redis:8.0.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  celery_beat:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - "PROD_ENVIROMENT=1"
+      - "DJANGO_SETTINGS_MODULE=core.settings"
+      - "DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_NAME}"
+    depends_on:
+      - db
+      - redis
+
+
   web:
     build:
       context: ./app
