@@ -30,7 +30,7 @@ dependencies = [
     "django-mathfilters (==1.0.0)",
     "django-model-utils (==5.0.0)",
     "django-select2 (==8.4.1)",
-    "django-solo (==1.1.1)",
+    "django-solo (==2.4.0)",
     "docker (==7.1.0)",
     "emoji (==2.14.1)",
     "gunicorn (==23.0.0)",
@@ -54,7 +54,8 @@ dependencies = [
     "urllib3 (==2.4.0)",
     "vine (==5.1.0)",
     "wcwidth (==0.2.13)",
-    "whitenoise (==6.9.0)"
+    "whitenoise (==6.9.0)",
+    "django-widget-tweaks (>=1.5.0,<2.0.0)"
 ]
 
 
