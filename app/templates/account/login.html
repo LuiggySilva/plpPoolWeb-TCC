@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 {% block title %}{% trans "Login" %}{% endblock title %}
 
@@ -20,16 +21,51 @@
             <form method="POST" action="{% url 'account_login' %}" class="w-50 p-3 rounded bg-secondary-subtle">
                 {% csrf_token %}
                 {{ redirect_field }}
-                {{form|crispy}}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {{ form.login|as_crispy_field }}
+
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                    <div class="input-group">
+                        {{ form.password|add_class:"form-control" }}
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>   
+                    </div>
+                </div>
+
+                {{ form.remember|as_crispy_field }}
 
                 <div class="text-center">
-                    <button type="submit" class="btn btn-lg btn-primary w-50 mt-2">{% trans "Login" %}</button>
+                    <button type="submit" class="btn btn-lg btn-primary w-50 mt-2">Entrar</button>
                 </div>
-                <div class="text-center mt-4">
-                    <a href="{% url 'account_signup' %}">{% trans "Don't have an account?" %}</a>
+
+                <div class="text-center mt-2">
+                    <a href="{% url 'account_reset_password' %}" class="btn btn-link">Esqueci minha senha</a>
                 </div>
             </form>
         </div>
         
     </div>
 {% endblock content %}
+
+{% block inline_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('togglePassword').addEventListener('click', function () {
+                const passwordInput = document.getElementById("id_password");
+                const icon = document.getElementById("toggleIcon");
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        });
+    </script>
+{% endblock inline_js %}

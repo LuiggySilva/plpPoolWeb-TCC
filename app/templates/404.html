@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container mb-4">
+        <h1 class="text-center"><i class="bi bi-exclamation-triangle text-warning"></i>&nbsp;Página não encontrada</h1>
+
+        <hr>
+
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <p class="text-muted">A página que você tentou acessar não existe ou foi removida.</p>
+            {% if exception %}
+                <p class="text-danger small">{{ exception }}</p>
+            {% endif %}
+            <!-- TODO alterar para pagina inicial caso já esteja logado -->
+            <a href="{% url 'account_login' %}" class="btn btn-outline-primary mt-3">Voltar para o login</a>
+        </div>
+    </div>
+{% endblock %}

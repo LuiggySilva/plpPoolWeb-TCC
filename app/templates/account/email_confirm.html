@@ -4,7 +4,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% trans "Confirm email" %}{% endblock title %}
+{% block title %}Confirme o email{% endblock title %}
 
 {% block head %}
     {{form.media}}
@@ -15,7 +15,7 @@
     <div class="container my-4">
         <div class="text-center">
             <div class="text-center">
-                <h1><i class="bi bi-envelope-exclamation"></i> {% trans "Confirm email address" %}</h1>
+                <h1><i class="bi bi-envelope-exclamation"></i>&nbsp;Confirme o email</h1>
                 <hr>
             </div>
 
@@ -23,7 +23,7 @@
                 {% if confirmation %}
                     {% if can_confirm %}
                         {% with confirmation.email_address.email as email %}
-                            <p>{% trans "Please confirm that" %} <a href="mailto:{{ email }}">{{ email }}</a> {% trans "is an email address for the user" %} <b>{{confirmation.email_address.user.full_name}}</b></p>
+                            <p>Por favor, confirme que <a href="mailto:{{ email }}">{{ email }}</a> é o endereço de email do usuário <b>{{confirmation.email_address.user.name}}</b></p>
                         {% endwith %}
     
                         {% url 'account_confirm_email' confirmation.key as action_url %}
@@ -33,14 +33,14 @@
                             {{form|crispy}}
                 
                             <div class="text-center">
-                                <button type="submit" class="btn btn-lg btn-success w-50 mt-2"><i class="bi bi-check-circle-fill"></i> {% trans "Confirm" %}</button>
+                                <button type="submit" class="btn btn-lg btn-success w-50 mt-2"><i class="bi bi-check-circle-fill"></i> &nbsp;Confirmar</button>
                             </div>
                         </form>
                     {% else %}
-                        <p class="form-text">{% trans "Unable to confirm" %} {{email}} {% trans "because it has already been confirmed by a different account." %}</p>
+                        <p class="form-text">Não é possível confirmar {{email}} porque esse email já foi confirmado com outra conta.</p>
                     {% endif %}
                 {% else %}
-                    <p class="form-text">{% trans "This email confirmation link has expired or is invalid." %}</p>
+                    <p class="form-text">Esse link de confirmação expirou ou já foi utilizado.</p>
                 {% endif %}
             </div>
 

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1></h1>
+    <div class="container mb-4">
+        <h1 class="text-center"><i class="bi bi-ban text-danger"></i>&nbsp;Acesso negado</h1>
+
+        <hr>
+
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <p>{{exception}}</p>
+            <a href="{% url 'account_login' %}">Voltar para o login</a>
+        </div>
+    </div>
+{% endblock %}
+
+
+

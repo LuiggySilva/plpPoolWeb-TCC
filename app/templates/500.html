@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container mb-4">
+        <h1 class="text-center"><i class="bi bi-bug text-danger"></i>&nbsp;Erro interno do servidor</h1>
+
+        <hr>
+
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <p class="text-muted">Ocorreu um erro inesperado no servidor. Já estamos trabalhando para corrigir isso.</p>
+            <!-- TODO alterar para pagina inicial caso já esteja logado -->
+            <a href="{% url 'account_login' %}" class="btn btn-outline-primary mt-3">Voltar para o login</a>
+        </div>
+    </div>
+{% endblock %}
