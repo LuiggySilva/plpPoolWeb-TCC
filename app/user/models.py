@@ -87,7 +87,6 @@ class Professor(CustomUser):
 # TODO adicionar as configuraçoes de quantidade de questoes basicas e avançadas por linguagem (c/c++, haskll e prolog).
 # Caso a quantidade de questões basicas e avancadas de uma linguagem seja 0, não deve aparecer para o monitor.
 # Deve ter o deadline de criacão de questões para cada linguagem.
-# Deve ter as informações sobre as linguagens (nome, extensão e comando de execução), tudo readonly.
 # Nessa tela deve ter o botão de baixar o backup dos dados do sistema
 class SystemSetting(SingletonModel):
     active_period = models.ForeignKey(
@@ -95,12 +94,58 @@ class SystemSetting(SingletonModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="Período ativo",
-        help_text = format_html(
-            "• Se definido, apenas monitores com este período terão acesso.<br>"
-            "• Se deixado em branco, nenhum monitor poderá acessar.<br>"
-            "<b>Atenção:</b> o acesso dos professores deve ser removido manualmente."
-        )
+        verbose_name="Período ativo"
+    )
+
+    max_basic_cpp_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões básicas em C/C++",
+        default=0,
+        help_text="Número máximo de questões básicas que podem ser criadas em C/C++."
+    )
+    max_advanced_cpp_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões avançadas em C/C++",
+        default=0,
+        help_text="Número máximo de questões avançadas que podem ser criadas em C/C++."
+    )
+
+    max_basic_haskell_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões básicas em Haskell",
+        default=0,
+        help_text="Número máximo de questões básicas que podem ser criadas em Haskell."
+    )
+    max_advanced_haskell_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões avançadas em Haskell",
+        default=0,
+        help_text="Número máximo de questões avançadas que podem ser criadas em Haskell."
+    )
+    max_basic_prolog_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões básicas em Prolog",
+        default=0,
+        help_text="Número máximo de questões básicas que podem ser criadas em Prolog."
+    )
+    max_advanced_prolog_questions = models.PositiveIntegerField(
+        verbose_name="Máximo de questões avançadas em Prolog",
+        default=0,
+        help_text="Número máximo de questões avançadas que podem ser criadas em Prolog."
+    )
+
+    cpp_deadline = models.DateTimeField(
+        verbose_name="Prazo para criação de questões em C/C++",
+        help_text="Data e hora limite para a criação de questões em C/C++.",
+        blank=True,
+        default=timezone.now
+    )
+    haskell_deadline = models.DateTimeField(
+        verbose_name="Prazo para criação de questões em Haskell",
+        help_text="Data e hora limite para a criação de questões em Haskell.",
+        blank=True,
+        default=timezone.now
+    )
+    prolog_deadline = models.DateTimeField(
+        verbose_name="Prazo para criação de questões em Prolog",
+        help_text="Data e hora limite para a criação de questões em Prolog.",
+        blank=True,
+        default=timezone.now
     )
 
     class Meta:

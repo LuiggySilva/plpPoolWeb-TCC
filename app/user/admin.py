@@ -14,7 +14,32 @@ from .forms import ProfessorCreationForm, AssistentStudentCreationForm
 
 @admin.register(SystemSetting)
 class SystemSettingAdmin(SingletonModelAdmin):
-    pass
+    fieldsets = (
+        (None, {
+            'fields': (),
+            'description': format_html(
+                '<h3>• Se o máximo e mínimo de questões não forem definidos (igual a zero), o sistema não enviará notificações de prazo via email para os monitores.<h3>'
+                '<h3>• Um email será enviado relembrando os prazos definidos para os monitores uma semana antes e um dia antes do prazo final.</h3>'
+            )
+        }),
+        ('Período', {
+            'fields': ('active_period',),
+            'description': format_html(
+                "<b>Atenção:</b> o acesso dos <i>professores</i> deve ser <b>removido manualmente</b>.<br>"
+                "• Quando um período estiver definido, <b>apenas monitores vinculados a ele</b> poderão acessar o sistema.<br>"
+                "• Se deixado em branco, <b>nenhum monitor</b> terá acesso ao sistema."
+            )
+        }),
+        ('C/C++', {
+            'fields': ('cpp_deadline', 'max_basic_cpp_questions', 'max_advanced_cpp_questions'),
+        }),
+        ('Haskell', {
+            'fields': ('haskell_deadline', 'max_basic_haskell_questions', 'max_advanced_haskell_questions'),
+        }),
+        ('Prolog', {
+            'fields': ('prolog_deadline', 'max_basic_prolog_questions', 'max_advanced_prolog_questions'),
+        }),
+    )
 
 
 class AccessAllowedFilter(admin.SimpleListFilter):
