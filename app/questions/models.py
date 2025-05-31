@@ -8,7 +8,7 @@ class Period(models.Model):
         max_length=6, 
         unique=True,
         validators=[validate_period_format],
-        help_text="Formato: AAAA.S (ex: 2024.1)"    
+        help_text="Exemplos: 2023.0, 2023.1, 2024.2, etc."    
     )
 
     class Meta:
