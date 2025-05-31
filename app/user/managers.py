@@ -9,7 +9,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('O email é obrigatório')
         if not extra_fields.get('name'):
             raise ValueError('O nome é obrigatório')
-        # Permitir superusuário sem período
         if not extra_fields.get('period') and not extra_fields.get('is_superuser'):
             raise ValueError('O período é obrigatório')
             

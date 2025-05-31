@@ -1,5 +1,7 @@
 from django.core.exceptions import ValidationError
+
 import re
+
 
 def validate_registration_format(value):
     if not re.fullmatch(r'\d{9}', value):

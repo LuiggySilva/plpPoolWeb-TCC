@@ -7,9 +7,7 @@
 {% block title %}Perfil{% endblock title %}
 
 
-{% block head %} 
-    <link rel="stylesheet" href="{% static 'user/css/profile.css' %}">
-    <link rel="stylesheet" href="{% static 'user/css/alerts.css' %}">
+{% block head %}
 {% endblock head %}
 
 
@@ -17,6 +15,5 @@
     <div class="container">
         <h1>Olá, {{ request.user }}!</h1>
         <hr>
-        <a class="btn btn-danger" href="{% url 'account_logout' %}">Sair</a>
     </div>
 {% endblock content %}
