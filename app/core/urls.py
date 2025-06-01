@@ -33,3 +33,8 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+admin.site.site_header = 'Administração do plpPoolWeb'
+admin.site.index_title = 'Painel de Administração'
+admin.site.site_title = 'plpPoolWeb Admin'
