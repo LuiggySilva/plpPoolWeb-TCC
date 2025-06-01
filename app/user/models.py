@@ -13,6 +13,10 @@ from .validators import validate_registration_format
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    class Role(models.TextChoices):
+        ASSISTENT_STUDENT = 'monitor', 'Monitor'
+        PROFESSOR = 'professor', 'Professor'
+
     is_active = models.BooleanField(
         verbose_name="Permissão de Login", 
         default=True,
@@ -23,11 +27,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         )
     )
     is_staff = models.BooleanField(_("staff status"), default=False)
-    ROLE_CHOICES = (
-        ('monitor', 'Monitor'),
-        ('professor', 'Professor'),
-    )
-
     email = models.EmailField(unique=True)
     registration = models.CharField(
         verbose_name="Matrícula", 
@@ -37,8 +36,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     name = models.CharField(verbose_name="Nome", max_length=255)
     github = models.URLField(verbose_name="GitHub", max_length=255, blank=True)
-    period = models.ForeignKey('questions.Period', verbose_name="Período", related_name='periodo', on_delete=models.CASCADE, blank=True, null=True)
-    role = models.CharField(verbose_name="Função", max_length=10, choices=ROLE_CHOICES, blank=True)
+    period = models.ForeignKey('questions.Period', verbose_name="Período", related_name='users', on_delete=models.CASCADE, blank=True, null=True)
+    role = models.CharField(verbose_name="Função", max_length=10, choices=Role.choices, blank=True)
 
     objects = CustomUserManager()
 
@@ -68,7 +67,7 @@ class AssistentStudent(CustomUser):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.role = 'monitor'
+            self.role = self.Role.ASSISTENT_STUDENT
         super().save(*args, **kwargs)
 
 
@@ -80,14 +79,12 @@ class Professor(CustomUser):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.role = 'professor'
+            self.role = self.Role.PROFESSOR
             self.is_staff = True 
         super().save(*args, **kwargs)
 
-# TODO adicionar as configuraçoes de quantidade de questoes basicas e avançadas por linguagem (c/c++, haskll e prolog).
-# Caso a quantidade de questões basicas e avancadas de uma linguagem seja 0, não deve aparecer para o monitor.
-# Deve ter o deadline de criacão de questões para cada linguagem.
-# Nessa tela deve ter o botão de baixar o backup dos dados do sistema
+
+# TODO Nessa tela deve ter o botão de baixar o backup dos dados do sistema
 class SystemSetting(SingletonModel):
     active_period = models.ForeignKey(
         'questions.Period',
@@ -148,8 +145,33 @@ class SystemSetting(SingletonModel):
         default=timezone.now
     )
 
+    last_modified = models.DateTimeField(
+        verbose_name="Última modificação",
+        auto_now_add=True,
+        help_text="Data e hora da última modificação das configurações do sistema."
+    )
+    last_modified_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='system_settings_modified_by',
+        verbose_name="Último modificador"
+    )
+
+    min_public_tests_in_questions = models.PositiveIntegerField(
+        verbose_name="Mínimo de testes públicos em questões",
+        default=1,
+        help_text="Número mínimo de testes públicos que devem ser criados em cada questão."
+    )
+    min_private_tests_in_questions = models.PositiveIntegerField(
+        verbose_name="Mínimo de testes privados em questões",
+        default=5,
+        help_text="Número mínimo de testes privados que devem ser criados em cada questão."
+    )
+
     class Meta:
-        verbose_name = "Configurações do sistema"
+        verbose_name = "Configurações do Sistema"
 
     def __str__(self):
         return "Configurações"

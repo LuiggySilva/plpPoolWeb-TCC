@@ -30,16 +30,32 @@ class SystemSettingAdmin(SingletonModelAdmin):
                 "• Se deixado em branco, <b>nenhum monitor</b> terá acesso ao sistema."
             )
         }),
-        ('C/C++', {
+        ('Questões', {
+            'fields': (
+                'min_public_tests_in_questions',
+                'min_private_tests_in_questions'
+            )
+        }),
+        ('Linguagem: C/C++', {
             'fields': ('cpp_deadline', 'max_basic_cpp_questions', 'max_advanced_cpp_questions'),
         }),
-        ('Haskell', {
+        ('Linguagem: Haskell', {
             'fields': ('haskell_deadline', 'max_basic_haskell_questions', 'max_advanced_haskell_questions'),
         }),
-        ('Prolog', {
+        ('Linguagem: Prolog', {
             'fields': ('prolog_deadline', 'max_basic_prolog_questions', 'max_advanced_prolog_questions'),
         }),
+
+        ('Ultimas modificações', {
+            'fields': ('last_modified', 'last_modified_by',),
+        })
     )
+
+    readonly_fields = ['last_modified', 'last_modified_by']
+
+    def save_model(self, request, obj, form, change):
+        obj.last_modified_by = request.user
+        super().save_model(request, obj, form, change)
 
 
 class AccessAllowedFilter(admin.SimpleListFilter):
