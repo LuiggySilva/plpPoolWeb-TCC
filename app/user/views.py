@@ -7,6 +7,5 @@ from django.contrib.auth.decorators import login_required
 from . import models, forms, utils
 
 
-@login_required
-def profile(request):
-    return render(request, 'user/profile.html', context={})
+def about(request):
+    return render(request, 'user/about.html', context={})
