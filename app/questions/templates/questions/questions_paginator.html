@@ -1,0 +1,44 @@
+
+<div class="mt-4 d-flex flex-wrap align-items-center justify-content-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination mb-0">
+            
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <i class="bi bi-caret-left-fill"></i><span class="invisible">.</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-caret-left-fill"></i><span class="invisible">.</span></span>
+                </li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <i class="bi bi-caret-right-fill"></i><span class="invisible">.</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-caret-right-fill"></i><span class="invisible">.</span></span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+</div>

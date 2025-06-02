@@ -1,0 +1,8 @@
+textarea {
+    overflow: auto;
+    white-space: pre;
+}
+
+.textarea-not-resizable {
+    resize: none;
+}

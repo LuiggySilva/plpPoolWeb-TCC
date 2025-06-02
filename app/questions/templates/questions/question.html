@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{% block head %}
+    {{ form.media }}
+    <script src="https://cdn.jsdelivr.net/npm/taboverride@4"></script>
+    <script src="{% static 'js/taboverride_config.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/taboverride_textarea.css' %}">
+    <style>
+        #test-run-result {
+            cursor: pointer;
+        }
+    </style>
+{% endblock head %}
+
+
+{% block title %}{{question.title}}{% endblock title %}
+
+
+{% block content %}
+    <!-- TODO compilar entrada e testes arbitrarios -->
+    <!-- TODO verificar se tem html/js/css no código/entradas/saidas/descriçao na hora da criação/sanitização -->
+
+    <div class="container-fluid">
+        <div id="question-info" class="rounded p-3 border bg-light-subtle">
+            <!-- TITULO -->
+            <h2 class="font-monospace"><i class="bi bi-braces"></i>&nbsp;{{ question.title }}</h2>
+            <!-- AUTOR | PERÍODO | TIPO | LINGUAGEM -->
+            <div class="d-flex w-100 justify-content-start mb-2">
+                <small class="me-4"><i class="bi bi-person-circle"></i>&nbsp;{{ question.author.name }}</small>
+                <small class="me-4"><i class="bi bi-calendar2-week"></i>&nbsp;{{ question.period }}</small>
+                {% if question.type == question.Types.BASIC %}
+                    <small class="me-4"><i class="bi bi-star-half"></i>&nbsp;{{ question.get_type_display }}</small>
+                {% else %}
+                    <small class="me-4"><i class="bi bi-star-fill"></i>&nbsp;{{ question.get_type_display }}</small>
+                {% endif %}
+                <small class="me-4"><i class="devicon-{{ question.language }}-plain"></i>&nbsp;{{ question.get_language_display }}</small>
+            </div>
+            <!-- TAGS -->
+            <div class="d-flex flex-wrap gap-2 w-100 justify-content-start">
+                {% for tag in question.tags.all %}
+                    <small class="badge text-bg-secondary">
+                        <i class="bi bi-tag"></i>&nbsp;{{ tag.name }}
+                    </small>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div id="question-description" class="rounded p-3 mt-2 border bg-light-subtle">
+            <p>{{ question.description }}</p>
+        </div>
+
+        <!-- CÓDIGO -->
+        <div id="question-code" class="rounded p-3 mt-2 border bg-light-subtle overflow-auto">
+            {{ question.get_code_highlighted|safe }}
+        </div>
+
+        <!-- ENTRADA/SAÍDA COMPILADOR -->
+        <a class="btn btn-info w-100 text-start mt-2 fw-bold" data-bs-toggle="collapse" href="#collapseCompiler" role="button" aria-expanded="false" aria-controls="collapseCompiler">
+            <i class="bi bi-terminal"></i>&nbsp;Compilador
+        </a>
+        <div class="collapse rounded p-3 mt-2 border bg-light-subtle overflow-auto" id="collapseCompiler">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-secondary fw-bold">
+                                <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
+                            </li>
+                            <li class="list-group-item">
+                                <textarea id="user-input-data" name="user_input_data" class="form-control textarea-not-resizable" rows="10" ></textarea>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-6 mt-4 mt-md-0">
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-secondary fw-bold d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
+                                <span id="compiler-run-result" class="text-success" title="Executado com sucesso"><i class="bi bi-check-circle-fill"></i></span>
+                            </li>
+                            <li class="list-group-item">
+                                <textarea class="form-control textarea-not-resizable" rows="10" readonly></textarea>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-success w-50"><i class="bi bi-play-fill"></i>&nbsp;Executar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TESTES PÚBLICOS E PRIVADOS -->
+        <div id="question-tests" class="rounded p-3 mt-2 border bg-light-subtle overflow-auto">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="font-monospace"><i class="bi bi-check-circle"></i>&nbsp;Testes</h3>
+                <button class="btn btn-primary"><i class="bi bi-play-fill"></i>&nbsp;Executar testes</button>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <h4><i class="bi bi-unlock-fill"></i>&nbsp;Públicos</h4>
+                    <ul class="list-group">
+                        {% for test in public_tests.all %}
+                            <li class="list-group-item mb-2">
+                                <h6 class="font-monospace"><i class="bi bi-hash"></i>&nbsp;Teste {{ forloop.counter }}</h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item list-group-item-light">
+                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.input_data }}</textarea>
+                                    </li>
+                                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
+                                        <span id="test-{{test.id}}-run-result" class="text-success" title="Executado com sucesso"><i class="bi bi-check-circle-fill"></i></span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.output_data }}</textarea>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                <div class="alert alert-info" role="alert">
+                                    Nenhum teste público cadastrado.
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-12 col-md-6 mt-4 mt-md-0">
+                    <h4><i class="bi bi-lock-fill"></i>&nbsp;Privados</h4>
+                    <ul class="list-group">
+                        {% for test in private_tests.all %}
+                            <li class="list-group-item mb-2">
+                                <h6 class="font-monospace"><i class="bi bi-hash"></i>&nbsp;Teste {{ forloop.counter }}</h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item list-group-item-light">
+                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.input_data }}</textarea>
+                                    </li>
+                                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
+                                        <span id="test-{{test.id}}-run-result" class="text-danger" title="Erro na execução"><i class="bi bi-x-octagon-fill"></i></span>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.output_data }}</textarea>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                <div class="alert alert-info" role="alert">
+                                    Nenhum teste privado cadastrado.
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+
+{% block modal %}
+{% endblock modal %}
+
+
+{% block inline_js %}
+{% endblock inline_js %}
