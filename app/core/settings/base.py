@@ -53,6 +53,10 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     # https://pypi.org/project/django-celery-results/
     "django_celery_results",
+    # https://django-filter.readthedocs.io/en/stable/
+    "django_filters",
+    # https://pypi.org/project/django-adminfilters/
+    "adminfilters",
 ]
 LOCAL_APPS = [
     "user",
@@ -140,7 +144,7 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "user:profile"
+LOGIN_REDIRECT_URL = "questions:list"
 # https://docs.djangoproject.com/en/dev/ref/settings/#logout-redirect-url
 LOGOUT_REDIRECT_URL = "account_login"
 
@@ -190,7 +194,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Sao_Paulo'
 
@@ -199,8 +203,8 @@ USE_I18N = True
 USE_TZ = True
 
 LANGUAGES = [
-    ('en', 'English'),
     ('pt-br', 'Português Brasileiro'),
+    ('en', 'English'),
 ]
 
 LOCALE_PATHS = [
@@ -236,7 +240,6 @@ MESSAGE_TAGS = {
     constants.SUCCESS: 'alert-success',
     constants.INFO: 'alert-info ',
 }
-
 
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

@@ -23,8 +23,10 @@ from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('user.urls', namespace='user')),
+    path('', include('user.urls', namespace='user')),
     path('accounts/', include('allauth.urls')),
+    path('questions/', include('questions.urls', namespace='questions')),
+    path('code-runner/', include('code_runner.urls', namespace='code_runner')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

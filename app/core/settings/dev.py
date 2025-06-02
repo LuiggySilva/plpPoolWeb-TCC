@@ -29,11 +29,13 @@ DATABASES = {
 }
 
 
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#caches
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
-    }
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-dev-cache',
+    },
 }
 
 
@@ -41,15 +43,6 @@ CACHES = {
 MIDDLEWARE += [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
-
-
-# https://docs.djangoproject.com/en/dev/ref/settings/#caches
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "",
-    },
-}
 
 
 LOGGING = {
