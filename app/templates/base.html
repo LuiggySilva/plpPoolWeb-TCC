@@ -11,28 +11,35 @@
         <meta http-equiv="Pragma" content="no-cache" />
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-        <script>
-            (function() {
-                const storedTheme = localStorage.getItem('theme') || 'dark';
-                console.log(`Tema armazenado: ${storedTheme}`);
-                document.documentElement.setAttribute('data-bs-theme', storedTheme);
-            })();
-        </script>
+        <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
 
         <title>{% block title %}{% endblock title %}</title>
+
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+
+            @media only screen and (max-width: 600px) {
+                html, body { 
+                    font-size: calc(0.6em + 1vw) !important;
+                }
+            }
+        </style>
 
         <!-- HEAD -->
         {% block head %}
         {% endblock head %}
     </head>
     <body>
+        {% include 'header.html' %}
         <div class="wrapper">
             <!-- HEADER -->
-            {% include 'header.html' %}
 
             {% if messages %}
                 <div class="d-flex justify-content-center align-items-center">
@@ -50,12 +57,19 @@
             {% endif %}
 
             <!-- MAIN_CONTENT -->
-            <main class="content py-3">
+            <main class="content px-4 py-2 text-bg-secondary">
                 {% block content %}
                 {% endblock content %}
             </main>
+
+            <div class="invisible"><span>plpPoolWeb</span></div>
         </div>
 
+        <!-- MODAL -->
+        {% block modal %}
+        {% endblock modal %}
+
+        <!-- INLINE_JS -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const toastElList = [].slice.call(document.querySelectorAll('.toast'));
@@ -65,8 +79,7 @@
                 });
             });
         </script>
-
-        <!-- INLINE_JS -->
+        
         {% block inline_js %}
         {% endblock inline_js %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,25 +1,22 @@
-<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 mx-2 border-bottom">
+<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 px-4 border-bottom bg-secondary-subtle">
     <div class="col-md-3 mb-2 mb-md-0">
-        <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none"> 
-            <i class="bi bi-code-slash fs-2"></i>&nbsp;<span class="fs-4">plpPoolWeb</span>
+        <a href="{% url 'user:about' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none text-white"> 
+            <i class="bi bi-code-slash fs-2"></i>&nbsp;<span class="fs-4 font-monospace">plpPoolWeb</span>
         </a>
     </div>
 	<ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0 {% if not request.user.is_authenticated %}invisible{% endif %}">
         <li>
-            <a href="#" class="nav-link px-2 link-secondary">
+            <a href="{% url 'questions:list' %}" class="nav-link px-2 {% if current_tab == 'list' %}link-secondary{% endif %}">
                 <i class="bi bi-list-ul"></i>&nbsp;Todas questões
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link px-2">
+            <a href="{% url 'questions:assistentstudent_list' %}" class="nav-link px-2 {% if current_tab == 'assistentstudent_list' %}link-secondary{% endif %}">
                 <i class="bi bi-person-lines-fill"></i>&nbsp;Minhas questões
             </a>
         </li>
 	</ul>
 	<div class="col-md-4 text-end">
-        <button id="bd-theme" class="btn btn-outline-secondary me-2">
-            <i id="bd-theme-icon" class="bi"></i>
-        </button>
         {% if request.user.is_authenticated  %}
             <a href="{% url 'account_change_password' %}" class="btn btn-warning me-2">
                 <i class="bi bi-arrow-repeat"></i>&nbsp;Alterar senha
@@ -34,51 +31,3 @@
         {% endif %}
 	</div>
 </header>
-
-
-{% block inline_js %}
-<script>
-    const THEMES_DICT = {
-        'light': 'Claro',
-        'dark': 'Escuro',
-    };
-
-    (() => {
-        'use strict';
-
-        const getStoredTheme = () => localStorage.getItem('theme');
-        const setStoredTheme = theme => localStorage.setItem('theme', theme);
-
-        const applyTheme = (theme) => {
-            document.documentElement.setAttribute('data-bs-theme', theme);
-
-            const icon = document.querySelector('#bd-theme-icon');
-            const text = document.querySelector('#theme-text');
-
-            if (theme === 'dark') {
-                icon.classList.remove('bi-lightbulb-fill');
-                icon.classList.add('bi-lightbulb-off');
-            } else {
-                icon.classList.remove('bi-lightbulb-off');
-                icon.classList.add('bi-lightbulb-fill');
-            }
-
-            // text.textContent = `Tema: ${THEMES_DICT[theme]}`;
-        };
-
-        const toggleTheme = () => {
-            const currentTheme = getStoredTheme() === 'dark' ? 'light' : 'dark';
-            setStoredTheme(currentTheme);
-            applyTheme(currentTheme);
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const storedTheme = getStoredTheme() || 'dark';  // Padrão: escuro
-            applyTheme(storedTheme);
-
-            const themeBtn = document.querySelector('#bd-theme');
-            themeBtn.addEventListener('click', toggleTheme);
-        });
-    })();
-</script>
-{% endblock inline_js %}
