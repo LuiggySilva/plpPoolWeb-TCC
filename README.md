@@ -13,6 +13,7 @@ Aplicaçando web para gerenciamento e composição do banco de questões prontas
 5. [Como Rodar Localmente](#-como-rodar-localmente)
 6. [Deploy em Produção](#-deploy-em-produção)
 7. [Estrutura do Projeto](#-estrutura-do-projeto)
+8. [Modelagem de Dados (DER)](#-modelagem-de-dados-der)
 
 ---
 
@@ -221,3 +222,17 @@ plpPoolWeb-TCC/
 └── README.md
 
 ```
+
+Incluir o comando de geração e explicar o que está acontecendo no gráfico dá um toque muito sofisticado ao projeto. Mostra para a banca do TCC e para outros desenvolvedores que você domina as ferramentas de introspecção do Django.
+
+Aqui está uma versão excelente para o seu `README.md`, utilizando um acordeão para esconder o comando técnico e manter o visual do documento limpo:
+
+---
+
+## 📐 Modelagem de Dados (DER)
+
+A arquitetura de dados do **plpPoolWeb** foi projetada de forma modular e relacional, segregando as responsabilidades de controle de acesso, gestão pedagógica e auditoria. 
+
+O Diagrama de Entidade-Relacionamento (DER) abaixo ilustra o mapeamento dos modelos das aplicações principais (`user`, `questions` e `code_compiler`), evidenciando as relações de dependência, chaves estrangeiras e heranças estruturais:
+
+![Diagrama de Entidade-Relacionamento do Sistema](docs/img/schema.svg)
