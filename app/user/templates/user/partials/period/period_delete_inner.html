@@ -1,0 +1,16 @@
+<div class="modal-content border-0 shadow text-center">
+    <div class="modal-body p-4">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+        <h4 class="mt-3 fw-bold">Remover Período?</h4>
+        <p class="text-muted">Tem certeza que deseja remover "{{ period.name }}"?</p>
+        
+        <div class="d-flex justify-content-center gap-2 mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-target="#modalPeriodList" data-bs-toggle="modal">Cancelar</button>
+
+            <form hx-post="{% url 'user:period_delete' period.id %}" hx-target="#modalPeriodList table tbody">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger fw-bold px-4">Remover</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,50 +1,57 @@
 {% extends 'base.html' %}
-
 {% load i18n %}
-{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Confirme o email{% endblock title %}
+{% block title %}Confirme seu Email - plpPoolWeb{% endblock title %}
 
 {% block head %}
-    {{form.media}}
+    {{ form.media }}
 {% endblock head %}
 
 {% block content %}
+    <div class="container d-flex flex-column align-items-center justify-content-center mt-5 mb-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-envelope-exclamation fs-1 text-primary"></i>
+            <h2 class="fw-bold font-monospace mt-2">Confirme seu Email</h2>
+        </div>
 
-    <div class="container my-4">
-        <div class="text-center">
-            <div class="text-center">
-                <h1><i class="bi bi-envelope-exclamation"></i>&nbsp;Confirme o email</h1>
-                <hr>
-            </div>
-
-            <div class="p-3 rounded bg-secondary-subtle">
-                {% if confirmation %}
-                    {% if can_confirm %}
-                        {% with confirmation.email_address.email as email %}
-                            <p>Por favor, confirme que <a href="mailto:{{ email }}">{{ email }}</a> é o endereço de email do usuário <b>{{confirmation.email_address.user.name}}</b></p>
-                        {% endwith %}
-    
-                        {% url 'account_confirm_email' confirmation.key as action_url %}
-                        <form method="POST" action="{{ action_url }}">
-                            {% csrf_token %}
-                            {{ redirect_field }}
-                            {{form|crispy}}
-                
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-lg btn-success w-50 mt-2"><i class="bi bi-check-circle-fill"></i> &nbsp;Confirmar</button>
+        <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
+                <div class="card p-4 p-sm-5 border rounded-4 bg-body-tertiary shadow-sm text-center">
+                    {% if confirmation %}
+                        {% if can_confirm %}
+                            {% with confirmation.email_address.email as email %}
+                                <p class="text-body-secondary mb-4">
+                                    Por favor, confirme que <a href="mailto:{{ email }}" class="text-decoration-none fw-medium">{{ email }}</a> pertence ao usuário <strong>{{ confirmation.email_address.user.name }}</strong>.
+                                </p>
+                            {% endwith %}
+        
+                            {% url 'account_confirm_email' confirmation.key as action_url %}
+                            <form method="POST" action="{{ action_url }}">
+                                {% csrf_token %}
+                                {{ redirect_field }}
+                                {{ form|crispy }}
+                    
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-success btn-lg shadow-sm fw-bold">
+                                        <i class="bi bi-check-circle-fill"></i> Confirmar
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning border-0 shadow-sm">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Não é possível confirmar este endereço pois ele já está vinculado a outra conta.
                             </div>
-                        </form>
+                        {% endif %}
                     {% else %}
-                        <p class="form-text">Não é possível confirmar {{email}} porque esse email já foi confirmado com outra conta.</p>
+                        <div class="alert alert-danger border-0 shadow-sm">
+                            <i class="bi bi-x-circle-fill me-2"></i>
+                            Este link de confirmação é inválido, expirou ou já foi utilizado.
+                        </div>
                     {% endif %}
-                {% else %}
-                    <p class="form-text">Esse link de confirmação expirou ou já foi utilizado.</p>
-                {% endif %}
+                </div>
             </div>
-
-        </div>        
-
+        </div>
     </div>
 {% endblock content %}

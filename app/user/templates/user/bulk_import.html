@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/taboverride@4"></script>
+    <link rel="stylesheet" href="{% static 'css/taboverride_textarea.css' %}">
+{% endblock head %}
+    
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="bg-primary text-white rounded p-3 d-inline-flex align-items-center justify-content-center fs-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-box-arrow-in-down"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold mb-0">Importação em Lote</h2>
+            <p class="text-muted mb-0">Envie um arquivo ou cole o conteúdo JSON para analisar e importar questões.</p>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger shadow-sm border-0 mb-4">
+            {% for error in form.non_field_errors %}
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ error }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    {# O formulário de importação #}
+                    <form id="import-form" method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {# Upload de Arquivo #}
+                        <div class="mb-4">
+                            <label for="{{ form.json_file.id_for_label }}" class="form-label fw-bold">
+                                <i class="bi bi-filetype-json text-primary"></i> Opção 1: Upload de Arquivo JSON
+                            </label>
+                            <input type="file" name="{{ form.json_file.name }}" id="{{ form.json_file.id_for_label }}" 
+                                class="form-control {% if form.json_file.errors %}is-invalid{% endif %}">
+                            <div class="form-text text-muted">{{ form.json_file.help_text }}</div>
+                            {% if form.json_file.errors %}
+                                <div class="invalid-feedback">{% for error in form.json_file.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex align-items-center my-4">
+                            <hr class="flex-grow-1">
+                            <span class="mx-3 text-muted small fw-bold">OU</span>
+                            <hr class="flex-grow-1">
+                        </div>
+
+                        {# Campo de Texto para JSON #}
+                        <div class="mb-4">
+                            <label for="{{ form.json_text.id_for_label }}" class="form-label fw-bold">
+                                <i class="bi bi-textarea-t text-primary"></i> Opção 2: Colar Texto JSON
+                            </label>
+                            <textarea name="{{ form.json_text.name }}" id="{{ form.json_text.id_for_label }}" 
+                                rows="10" class="form-control font-monospace {% if form.json_text.errors %}is-invalid{% endif %}" 
+                                placeholder="[&#10;  {&#10;    &quot;title&quot;: &quot;Nova Questão&quot;,...&#10;  }&#10;]"></textarea>
+                            <div class="form-text text-muted">{{ form.json_text.help_text }}</div>
+                            {% if form.json_text.errors %}
+                                <div class="invalid-feedback">{% for error in form.json_text.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        {# Opção para criar dados relacionados ausentes #}
+                        <div class="mb-4">
+                            {{ form.create_missing|as_crispy_field }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 pt-2">
+                            <a href="{% url 'user:professor_adminpage' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+                            <a href="{% url 'user:download_backup' %}" class="btn btn-outline-info">
+                                <i class="bi bi-cloud-arrow-down"></i> Baixar Backup
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-search"></i> Analisar Questões
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# Coluna: Dicionário de Dados e Exemplo #}
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 bg-dark text-white h-100">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-info">
+                            <i class="bi bi-database"></i> Dicionário de IDs
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-outline-info" id="btn-copy-dict" onclick="copyDictionary()">
+                            <i class="bi bi-clipboard"></i> Copiar Dados
+                        </button>
+                    </div>
+
+                    <p class="small text-light-emphasis mb-3">
+                        Utilize os <strong>IDs numéricos (ou chaves)</strong> abaixo ao invés de texto para relacionar dados no JSON.
+                    </p>
+
+                    <ul class="nav nav-pills nav-fill mb-3" id="dictTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active btn-sm text-white" data-bs-toggle="pill" data-bs-target="#tab-periods" type="button" role="tab">Períodos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm text-white" data-bs-toggle="pill" data-bs-target="#tab-tags" type="button" role="tab">Tags</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm text-white" data-bs-toggle="pill" data-bs-target="#tab-langs" type="button" role="tab">Linguagens</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm text-white" data-bs-toggle="pill" data-bs-target="#tab-questions" type="button" role="tab">Questão</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm text-white" data-bs-toggle="pill" data-bs-target="#tab-tests" type="button" role="tab">Testes</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content bg-black rounded p-2 border border-secondary mb-3 flex-grow-1" style="max-height: 200px; overflow-y: auto;">
+                        {# Periodos #}
+                        <div class="tab-pane fade show active" id="tab-periods" role="tabpanel">
+                            <table class="table table-dark table-sm table-borderless small mb-0">
+                                <thead class="table-light">
+                                    <tr><th>ID</th><th>Nome</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for period in periods %}
+                                    <tr><td class="text-warning text-end">{{ period.name }}</td><td>{{ period.name }}</td></tr>
+                                    {% empty %}
+                                    <tr><td class="text-muted text-center" colspan="2">Nenhum período cadastrado.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {# Tags #}
+                        <div class="tab-pane fade" id="tab-tags" role="tabpanel">
+                            <table class="table table-dark table-sm table-borderless small mb-0">
+                                <thead class="table-light">
+                                    <tr><th>Slug</th> <th>Nome</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for tag in tags %}
+                                        <tr>
+                                            <td class="text-warning text-end">{{ tag.slug }}</td>
+                                            <td>{{ tag.name }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr><td class="text-muted text-center" colspan="2">Nenhuma tag cadastrada.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {# Linguagens #}
+                        <div class="tab-pane fade" id="tab-langs" role="tabpanel">
+                            <table class="table table-dark table-sm table-borderless small mb-0">
+                                <thead class="table-light">
+                                    <tr><th>ID</th><th>Nome</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, label in languages %}
+                                    <tr><td class="text-warning text-end">"{{ key }}"</td><td>{{ label }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {# Tipos de Questão #}
+                        <div class="tab-pane fade" id="tab-questions" role="tabpanel">
+                            <table class="table table-dark table-sm table-borderless small mb-0">
+                                <thead class="table-light">
+                                    <tr><th>ID</th><th>Nome</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, label in question_types %}
+                                    <tr><td class="text-warning text-end">"{{ key }}"</td><td>{{ label }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {# Tipos de Teste #}
+                        <div class="tab-pane fade" id="tab-tests" role="tabpanel">
+                            <table class="table table-dark table-sm table-borderless small mb-0">
+                                <thead class="table-light">
+                                    <tr><th>ID</th><th>Nome</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, label in test_types %}
+                                    <tr><td class="text-warning text-end">"{{ key }}"</td><td>{{ label }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-3">
+
+                    {# Exemplo de Estrutura JSON #}
+                    <button class="btn btn-sm btn-outline-info w-100 text-start d-flex justify-content-between align-items-center" 
+                            type="button" data-bs-toggle="collapse" data-bs-target="#jsonExampleCollapse">
+                        <span><i class="bi bi-code-square"></i> Ver Exemplo de Estrutura</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    
+                    <div class="collapse mt-3" id="jsonExampleCollapse">
+<pre class="bg-black text-info p-3 rounded mb-0 small border border-secondary" style="max-height: 250px; overflow-y: auto;">
+[
+    {
+        "title": "Fatorial Recursivo",
+        "description": "Leia um número inteiro N e calcule o seu fatorial usando recursão.",
+        "code": "factorial(0, 1).\nfactorial(N, F) :-\n    N > 0,\n    N1 is N - 1,\n    factorial(N1, F1),\n    F is N * F1.",
+        "language": "prolog",
+        "type": "advanced",
+        "period": "2024.1",
+        "tags": ["recursão", "matemática"],
+        "author": {
+        "name": "Nome Aluno",
+        "github_url": "Link Github"
+        },
+        "tests": [
+        {
+            "input_data": "5",
+            "output_data": "120",
+            "type": "public"
+        },
+        {
+            "input_data": "3",
+            "output_data": "6",
+            "type": "private"
+        }
+        ]
+    },
+]
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+    
+
+
+{% block inline_js %}
+    <script src="{% static 'js/taboverride_config.js' %}"></script>
+
+    {# Script invisível contendo os dados estruturados para cópia #}
+<script type="text/plain" id="dictionary-raw-data">
+=== DICIONÁRIO DE IDs ===
+
+[PERÍODOS]
+{% for period in periods %}
+    ID: "{{ period.name }}" |  Nome: {{ period.name }}
+{% empty %}
+    Nenhum período cadastrado.
+{% endfor %}
+[TAGS]
+{% for tag in tags %}
+    Slug: "{{ tag.slug }}" | Nome: {{ tag.name }}
+{% empty %}
+    Nenhuma tag cadastrada.
+{% endfor %}
+[LINGUAGENS]
+{% for key, label in languages %}
+    Chave: "{{ key }}" | Nome: {{ label }}
+{% endfor %}
+[TIPOS DE QUESTÃO]
+{% for key, label in question_types %}
+    Chave: "{{ key }}" | Nome: {{ label }}
+{% endfor %}
+[TIPOS DE TESTES]
+{% for key, label in test_types %}
+    Chave: "{{ key }}" | Nome: {{ label }}
+{% endfor %}
+</script>
+
+    {# Função para copiar o conteúdo do dicionário #}
+    <script>
+        function copyDictionary() {
+            // Pega o texto estruturado do script invisível
+            const textToCopy = document.getElementById('dictionary-raw-data').textContent.trim();
+            const btn = document.getElementById('btn-copy-dict');
+            const originalHTML = btn.innerHTML;
+
+            // Usa a API de Clipboard para copiar
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Feedback de sucesso
+                btn.innerHTML = '<i class="bi bi-check2-all"></i> Copiado!';
+                btn.classList.replace('btn-outline-info', 'btn-success');
+                
+                // Retorna o botão ao normal após 2 segundos
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.replace('btn-success', 'btn-outline-info');
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar o dicionário: ', err);
+                alert('Falha ao tentar copiar os dados.');
+            });
+        }
+    </script>
+
+{% endblock inline_js %}
+

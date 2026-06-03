@@ -1,0 +1,37 @@
+{% for tag in tags %}
+    <tr>
+        <td class="fw-medium">{{ tag.id }}</td>
+        <td class="text-start fw-medium"><span class="badge bg-primary rounded-pill">{{ tag.name }}</span></td>
+        <td>
+            <div class="d-flex flex-column flex-md-row gap-2 gap-md-2 justify-content-center align-items-center">
+                <button class="btn btn-sm btn-outline-primary" title="Modificar"
+                        hx-get="{% url 'questions:tag_edit' tag.id %}" 
+                        hx-target="#modalTagForm .modal-dialog"
+                        data-bs-target="#modalTagForm" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                
+                <button class="btn btn-sm btn-outline-danger" title="Remover"
+                        hx-get="{% url 'questions:tag_delete' tag.id %}" 
+                        hx-target="#modalTagDelete .modal-dialog"
+                        data-bs-target="#modalTagDelete" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-secondary" title="Alterações"
+                        hx-get="{% url 'questions:tag_history' tag.id %}" 
+                        hx-target="#modalTagHistory .modal-dialog"
+                        data-bs-target="#modalTagHistory" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-clock-history"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="2" class="text-center">Nenhuma tag encontrada</td>
+    </tr>
+{% endfor %}

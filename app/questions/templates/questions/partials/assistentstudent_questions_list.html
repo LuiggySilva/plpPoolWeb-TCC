@@ -1,0 +1,55 @@
+{% for question in questions %}
+    <li class="list-group-item bg-transparent px-0 py-3 border-bottom hover-shadow transition position-relative">
+        
+        <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+            <a href="{{ question.get_absolute_url }}" class="text-decoration-none text-body d-block flex-grow-1 p-2 rounded">
+                <h5 class="font-monospace text-primary fw-semibold mb-1">
+                    <i class="bi bi-braces"></i>&nbsp;{{ question.title }}
+                </h5>
+                <p class="text-body-secondary mb-3">{{ question.description|truncatewords:25 }}</p>
+                
+                <div class="d-flex flex-wrap gap-3 text-muted small fw-medium mb-3">
+                    <span><i class="bi bi-person-circle"></i>&nbsp;{{ question.author.name }}</span>
+                    <span>
+                        {% if question.type == question.Types.BASIC %}
+                            <i class="bi bi-star-half text-warning"></i>
+                        {% else %}
+                            <i class="bi bi-star-fill text-warning"></i>
+                        {% endif %}
+                        &nbsp;{{ question.get_type_display }}
+                    </span>
+                    <span><i class="devicon-{{ question.language }}-plain text-info"></i>&nbsp;{{ question.get_language_display }}</span>
+                </div>
+                
+                <div class="d-flex flex-wrap gap-2 w-100">
+                    {% for tag in question.tags.all %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle rounded-pill">
+                            <i class="bi bi-tag"></i>&nbsp;{{ tag.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </a>
+
+            <div class="d-flex gap-2 ms-2 position-relative z-1 pt-2 pe-2">
+                <a href="{% url 'questions:question_edit' question.id %}" class="btn btn-sm btn-outline-secondary" >
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+
+                <button type="button" class="btn btn-sm btn-outline-danger" title="Remover Questão"
+                        hx-post="{% url 'questions:question_delete' question.id %}"
+                        hx-vals='{ "csrfmiddlewaretoken": {{ csrf_token }} }'
+                        hx-confirm="Deseja remover essa questão '{{ question.title }}'?"
+                        hx-target="#assistentstudent-questions-list">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </li>
+{% empty %}
+    <div class="alert alert-info d-flex align-items-center mt-3 shadow-sm" role="alert">
+        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+        <div>Você ainda não possui nenhuma questão cadastrada.</div>
+    </div>
+{% endfor %}
+
+

@@ -1,104 +1,118 @@
 {% extends 'base.html' %}
-
-
 {% load static %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 
-
 {% block head %}
     {{ form.media }}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
 {% endblock head %}
 
-
-{% block title %}Questões{% endblock title %}
-
+{% block title %}Questões - plpPoolWeb{% endblock title %}
 
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-xl">
         <div class="text-center">
-            <button class="btn btn-primary d-xxl-none mb-3 font-monospace" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas">
-                Filtros
+            <button class="btn btn-primary d-xxl-none mb-3 font-monospace shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas">
+                <i class="bi bi-funnel-fill"></i> Filtros
             </button>
         </div>
     
-        <div id="questions-container" class="d-flex flex-column flex-xxl-row">
-            <!-- FILTROS OFFCANVAS -->
+        <div id="questions-container" class="row gap-4 justify-content-center">
+            
             <div class="offcanvas offcanvas-start d-xxl-none" tabindex="-1" id="filtersOffcanvas" aria-labelledby="filtersOffcanvasLabel">
-                <div class="offcanvas-header ">
-                    <h5 class="offcanvas-title font-monospace" id="filtersOffcanvasLabel">Filtros</h5>
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title font-monospace fw-bold" id="filtersOffcanvasLabel">Filtros</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
                 </div>
-                <div class="offcanvas-body">
-                    <div id="filters-mobile p-2 text-bg-secondary">
-                        <div class="text-center mb-2">
-                            <a href="{% url 'questions:list' %}" class="btn btn-sm btn-warning"><i class="bi bi-x-circle"></i>&nbsp;Limpar Filtros</a>
+                <div class="offcanvas-body bg-body-tertiary">
+                    <div id="filters-mobile">
+                        <div class="d-grid mb-4">
+                            <a href="{% url 'questions:question_list' %}" class="btn btn-outline-warning"><i class="bi bi-x-circle"></i>&nbsp;Limpar Filtros</a>
                         </div>
                         {% include 'questions/questions_filters.html' with filter_form=filter.form %}
                     </div>
                 </div>
             </div>
             
-            <!-- FILTROS -->
-            <div id="filters" class="d-none d-xxl-block w-25 p-3 me-3 border rounded bg-light-subtle">
-                <h4 class="text-center font-monospace">Filtros</h4>
-                <hr>
-                <div class="text-center mb-2">
-                    <a href="{% url 'questions:list' %}" class="btn btn-sm btn-warning"><i class="bi bi-x-circle"></i>&nbsp;Limpar Filtros</a>
+            <div id="filters" class="col-xxl-3 d-none d-xxl-block p-4 border rounded-3 bg-body-tertiary shadow-sm align-self-start">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="font-monospace fw-bold m-0"><i class="bi bi-funnel"></i> Filtros</h4>
+                    <a href="{% url 'questions:question_list' %}" class="btn btn-sm btn-outline-warning" title="Limpar Filtros"><i class="bi bi-x-circle"></i></a>
                 </div>
+                <hr class="text-secondary opacity-25">
                 {% include 'questions/questions_filters.html' with filter_form=filter.form %}
             </div>
             
-            <!-- QUESTÕES -->
-            <div id="questions" class="w-100 w-xxl-75 p-3 border rounded bg-light-subtle">
-                <h1 class="text-center font-monospace">Questões</h1>
-                <hr>
+            <div id="questions" class="col-12 col-xxl-8 p-4 border rounded-3 bg-body-tertiary shadow-sm">
+                <h2 class="text-center font-monospace fw-bold mb-4 text-body-emphasis">Lista de Questões</h2>
 
-                <ul class="list-group">
+                <ul class="list-group list-group-flush border-top">
                     {% for question in questions %}
-                        <li class="list-group-item list-group-item-action mb-2">
-                            <a href="{{ question.get_absolute_url }}" class="text-decoration-none text-reset" aria-current="true">
-                                <h5 class="mb-1 font-monospace"><i class="bi bi-braces"></i>&nbsp;{{ question.title }}</h5>
-                                <p>{{ question.description|truncatewords:25 }}</p>
-                                <hr class="my-2">
-                                <div class="d-flex w-100 justify-content-around">
-                                    <small><i class="bi bi-person-circle"></i>&nbsp;{{ question.author.name }}</small>
-                                    <small><i class="bi bi-calendar2-week"></i>&nbsp;{{ question.period }}</small>
-                                    {% if question.type == question.Types.BASIC %}
-                                        <small><i class="bi bi-star-half"></i>&nbsp;{{ question.get_type_display }}</small>
-                                    {% else %}
-                                        <small><i class="bi bi-star-fill"></i>&nbsp;{{ question.get_type_display }}</small>
-                                    {% endif %}
-                                    <small><i class="devicon-{{ question.language }}-plain"></i>&nbsp;{{ question.get_language_display }}</small>
+                        <li class="list-group-item bg-transparent px-0 py-3 border-bottom hover-shadow transition">
+                            <a href="{{ question.get_absolute_url }}" class="text-decoration-none text-body d-block p-2 rounded">
+                                <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+                                    <h5 class="font-monospace text-primary fw-semibold mb-0">
+                                        <i class="bi bi-braces"></i>&nbsp;{{ question.title }}
+                                    </h5>
                                 </div>
-                                <hr class="my-2">
-                                <div class="d-flex flex-wrap gap-2 w-100 justify-content-center">
+                                <p class="text-body-secondary mb-3">{{ question.description|truncatewords:25 }}</p>
+                                
+                                <div class="d-flex flex-wrap gap-3 text-muted small fw-medium mb-3">
+                                    <span><i class="bi bi-person-circle"></i>&nbsp;{{ question.author.name }}</span>
+                                    <span><i class="bi bi-calendar2-week"></i>&nbsp;{{ question.period }}</span>
+                                    <span>
+                                        {% if question.type == question.Types.BASIC %}
+                                            <i class="bi bi-star-half text-warning"></i>
+                                        {% else %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% endif %}
+                                        &nbsp;{{ question.get_type_display }}
+                                    </span>
+                                    <span><i class="devicon-{{ question.language_devicon }}-plain text-info"></i>&nbsp;{{ question.get_language_display }}</span>
+                                </div>
+                                
+                                <div class="d-flex flex-wrap gap-2 w-100">
                                     {% for tag in question.tags.all %}
-                                        <small class="badge text-bg-secondary">
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle rounded-pill">
                                             <i class="bi bi-tag"></i>&nbsp;{{ tag.name }}
-                                        </small>
+                                        </span>
                                     {% endfor %}
                                 </div>
                             </a>
                         </li>
                     {% empty %}
-                        <div class="alert alert-info" role="alert">
-                            Nenhuma questão encontrada.
+                        <div class="alert alert-info d-flex align-items-center mt-3 shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                            <div>Nenhuma questão encontrada para os filtros aplicados.</div>
                         </div>
                     {% endfor %}
                 </ul>
+
+                <div class="mt-4">
+                    {% include 'questions/questions_paginator.html' with paginator=paginator page_obj=page_obj %}
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- PAGINADOR -->
-    {% include 'questions/questions_paginator.html' with paginator=paginator page_obj=page_obj %}
-
 {% endblock content %}
-
 
 {% block modal %}
 {% endblock modal %}
 
-
-{% block inline_js %}{% endblock inline_js %}
+{% block inline_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {  
+            document.querySelectorAll('select[name="tags"]').forEach(function(element) {
+                new TomSelect(element, {
+                    plugins: ['remove_button'],
+                    maxOptions: null,
+                    hideSelected: true,
+                    closeAfterSelect: false,
+                });
+            });
+        });
+    </script>
+{% endblock inline_js %}

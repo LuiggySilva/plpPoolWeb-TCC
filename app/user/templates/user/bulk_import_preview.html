@@ -1,0 +1,176 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% load highligh_code %}
+
+{% block head %}
+    <style>
+        {% pygments_css %}
+    </style>
+    <link rel="stylesheet" href="{% static 'css/code_highlight_style.css' %}">
+{% endblock head %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold m-0 d-flex align-items-center gap-2">
+                <i class="bi bi-ui-checks-grid text-primary"></i> Revisão de Importação
+            </h2>
+            <p class="text-muted small mb-2">
+                Analise as questões identificadas durante a importação e escolha quais devem ser adicionadas ao banco de dados.
+            </p>
+        </div>
+
+        <div class="alert alert-warning d-flex align-items-start gap-3 m-0 py-3 px-4 w-100">
+            <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+
+            <div class="small">
+                A verificação de similaridade compara automaticamente a nova questão com as já existentes no banco de dados utilizando:
+
+                <ul class="mb-2 mt-2 ps-3">
+                    <li>
+                        <i class="bi bi-card-heading text-primary me-1"></i><strong>Enunciado</strong>
+                    </li>
+                    <li>
+                        <i class="bi bi-file-earmark-text text-info me-1"></i><strong>Descrição</strong>
+                    </li>
+                    <li>
+                        <i class="bi bi-code-slash text-secondary me-1"></i><strong>Código</strong>
+                    </li>
+                </ul>
+
+                Quando qualquer um desses campos atingir uma similaridade superior a 
+                <strong>75%</strong> e ambas serem na mesma linguagem, a questão será sinalizada para revisão manual antes da importação.
+            </div>
+        </div>
+    </div>
+
+    {# Elementos que serão criados automaticamente #}
+    {% if create_missing %}
+        {% if new_periods or new_tags %}
+            <div class="card border-primary-subtle bg-primary-subtle bg-opacity-10 mb-5 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-primary fw-bold mb-2 d-flex align-items-center gap-2">
+                        <i class="bi bi-stars"></i> Elementos que serão criados automaticamente
+                    </h5>
+                    <p class="text-muted small mb-4">
+                        A opção de criar registros ausentes está ativa. Ao processar a importação, o sistema gerará de forma automática as seguintes entidades no banco de dados:
+                    </p>
+                    
+                    <div class="row g-3">
+                        {% if new_periods %}
+                            <div class="col-12 col-md-6">
+                                <div class="p-3 bg-body rounded border border-primary-subtle h-100">
+                                    <h6 class="fw-bold text-secondary mb-3 small text-uppercase d-flex align-items-center gap-2">
+                                        <i class="bi bi-calendar-plus-fill text-primary"></i> Novos períodos ({{ new_periods|length }})
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for period in new_periods %}
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-2 fw-semibold fs-7">
+                                                {{ period }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if new_tags %}
+                            <div class="col-12 col-md-6">
+                                <div class="p-3 bg-body rounded border border-primary-subtle h-100">
+                                    <h6 class="fw-bold text-secondary mb-3 small text-uppercase d-flex align-items-center gap-2">
+                                        <i class="bi bi-tag text-primary"></i> Novas tags ({{ new_tags|length }})
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for tag in new_tags %}
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-2 fw-semibold fs-7">
+                                                {{ tag }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+    
+    {# Lista de pré-visualização #}
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="json_data_dump" value="{{ json_data_dump }}">
+        <input type="hidden" name="confirm_preview" value="true">
+        <input type="hidden" name="create_missing" value="{% if create_missing %}1{% else %}0{% endif %}">
+
+        {% for item in preview_list %}
+            <div class="card mb-5 shadow-sm {% if item.duplicate %}border-danger{% else %}border-secondary-subtle{% endif %}">
+                <div class="card-header py-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 {% if item.duplicate %}bg-danger-subtle{% else %}bg-body-secondary{% endif %}">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" name="import_indices" value="{{ item.index }}" id="check-{{ item.index }}" {% if not item.duplicate and not item.validation_errors %}checked{% endif %}>
+                        <label class="form-check-label fw-bold mb-0" for="check-{{ item.index }}">
+                            #{{ item.index|add:1 }} - {{ item.data.title }}
+                        </label>
+                    </div>
+                    {% if item.duplicate %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-intersect"></i>
+                            SIMILARIDADE: {{ item.duplicate.reason }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    {% if item.validation_errors %}
+                        <div class="alert alert-danger mt-2 small">
+                            <strong>Erros de validação:</strong>
+                            <ul class="mb-0">
+                                {% for err in item.validation_errors %}
+                                    <li>{{ err }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-4">
+                        
+                        {# LADO A: NOVA QUESTÃO (IMPORTAÇÃO) #}
+                        <div class="{% if item.duplicate %}col-lg-6 border-end{% else %}col-12{% endif %}">
+                            <div class="m-3 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2">
+                                <h6 class="mb-0 text-primary fw-bold small text-uppercase"> Dados da Importação</h6>
+                            </div>
+
+                            {% include "user/partials/backup/question_details.html" with title=item.data.title author=item.data.author language_id=item.data.language language=item.data.language_display period=item.data.period_display tags=item.data.tags_display description=item.data.description code=item.data.code tests=item.data.tests index=item.index type="new" %}
+                        </div>
+
+                        {# LADO B: EXISTENTE (DB) #}
+                        {% if item.duplicate %}
+                        <div class="col-lg-6">
+                            <div class="m-3 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2">
+                                <h6 class="mb-0 text-danger fw-bold small text-uppercase">Existente no Banco (ID: {{ item.duplicate.instance.id }})</h6>
+                                <a href="{{ item.duplicate.instance.get_absolute_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-link text-danger p-0">
+                                    <i class="bi bi-box-arrow-up-right"></i> Ver registro completo
+                                </a>
+                            </div>
+                            
+                            {% include "user/partials/backup/question_details.html" with title=item.duplicate.instance.title author=item.duplicate.instance.author language_id=item.duplicate.instance.language language=item.duplicate.instance.get_language_display period=item.duplicate.instance.period.name tags=item.duplicate.instance.tags.all description=item.duplicate.instance.description code=item.duplicate.instance.code tests=item.duplicate.instance.tests.all index=item.index type="db" %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="sticky-bottom bg-body border-top p-3 shadow-lg mt-5">
+            <div class="container d-flex justify-content-end gap-2">
+                <a href="{% url 'user:bulk_import_questions' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                <button type="submit" class="btn btn-success px-5 fw-bold">Confirmar Importação</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

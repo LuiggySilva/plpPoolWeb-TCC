@@ -1,0 +1,136 @@
+<div class="modal-content border-0 shadow">
+    <div class="modal-header border-bottom bg-body-tertiary">
+        <h1 class="modal-title fs-5 font-monospace fw-bold">
+            <i class="bi bi-terminal text-secondary"></i> Histórico de Execuções de Código
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body p-4">
+        {% if all_executions %}
+            <div class="table-responsive border rounded shadow-sm" style="max-height: 60vh; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light sticky-top" style="z-index: 1;">
+                        <tr>
+                            <th class="text-start">Questão</th>
+                            <th>Usuário</th>
+                            <th>Tipo</th>
+                            <th>Veredito</th>
+                            <th>Status / Detalhes</th>
+                            <th class="text-end">Data e Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for execution in all_executions %}
+                            <tr>
+                                {# Coluna Questão (Clicável se existir) #}
+                                <td class="text-start fw-medium text-truncate" style="max-width: 200px;">
+                                    <a href="{{ execution.question.get_absolute_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none" title="{{ execution.question.title }}">
+                                        <i class="bi bi-box-arrow-up-right small me-1"></i>{{ execution.question.title }}
+                                    </a>
+                                </td>
+
+                                {# Coluna Usuário #}
+                                <td title="{% firstof execution.user.email execution.user.github execution.user.registration %}">
+                                    {% firstof execution.user.name "-" %}
+                                </td>
+
+                                {# Coluna Tipo #}
+                                <td>
+                                    {% if execution.activity_type == 'MANUAL' %}
+                                        <span class="badge bg-secondary rounded-pill px-3"><i class="bi bi-play-circle me-1"></i>Manual</span>
+                                    {% else %}
+                                        <span class="badge bg-primary rounded-pill px-3"><i class="bi bi-check2-square me-1"></i>Testes</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Coluna Veredito #}
+                                <td>
+                                    {% if execution.activity_type == 'MANUAL' %}
+                                        {% with verdict_display=execution.get_manual_verdict_display|default:"-" verdict=execution.manual_verdict %}
+                                            {% if verdict == 'AC' %}
+                                                <b class="text-success">{{ verdict_display }}</b>
+                                            {% elif verdict == 'RE' %}
+                                                <b class="text-warning text-dark">{{ verdict_display }}</b>
+                                            {% elif verdict == 'TLE' %}
+                                                <b class="text-danger">{{ verdict_display }}</b>
+                                            {% else %}
+                                                <b class="text-secondary">{{ verdict_display|default:"-" }}</b>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% with verdict_display=execution.get_verdict_display|default:"-" verdict=execution.verdict %}
+                                            {% if verdict == 'AC' %}
+                                                <b class="text-success">{{ verdict_display }}</b>
+                                            {% elif verdict == 'RE' %}
+                                                <b class="text-warning text-dark">{{ verdict_display }}</b>
+                                            {% elif verdict == 'TLE' %}
+                                                <b class="text-danger">{{ verdict_display }}</b>
+                                            {% else %}
+                                                <b class="text-secondary">{{ verdict_display|default:"-" }}</b>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </td>
+
+                                {# Coluna Status (Link para Admin) #}
+                                <td>
+                                    {% if execution.activity_type == 'MANUAL' %}
+                                        {% url 'admin:code_compiler_manualrun_change' execution.id as admin_url %}
+                                    {% else %}
+                                        {% url 'admin:code_compiler_questionvalidation_change' execution.id as admin_url %}
+                                    {% endif %}
+                                    
+                                    <a href="{{ admin_url }}" target="_blank" class="text-decoration-none">
+                                        {% if execution.status == 'RUNNING' %}
+                                            <span class="text-primary"><i class="spinner-border spinner-border-sm me-1"></i> {{ execution.get_status_display }}</span>
+                                        {% elif execution.status == 'SYSTEM_ERROR' %}
+                                            <span class="badge bg-danger px-2 py-1"><i class="bi bi-exclamation-triangle"></i> {{ execution.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="text-body"><i class="bi bi-search me-1 small text-muted"></i>{{ execution.get_status_display }}</span>
+                                        {% endif %}
+                                    </a>
+                                </td>
+
+                                {# Coluna Data #}
+                                <td class="text-end text-muted small">{{ execution.created_at|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-terminal-x text-secondary" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">Nenhuma execução de código encontrada.</h5>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal-footer border-top bg-body-tertiary">
+        <div class="input-group style-select w-100 w-md-auto" style="max-width: 250px;">
+            <span class="input-group-text bg-body-tertiary small"> <i class="bi bi-filter"></i></span>
+
+            <select name="days" class="form-select form-select-sm"
+                hx-get="{% url 'user:professor_adminpage' %}"
+                hx-target="#{{ code_execution_content_area }}"
+                hx-header="history_type: code_execution_audit"
+                hx-trigger="change">
+
+                <option value="30" {% if selected_days == 30 %}selected{% endif %}>
+                    Últimos 30 dias
+                </option>
+
+                <option value="60" {% if selected_days == 60 %}selected{% endif %}>
+                    Últimos 60 dias
+                </option>
+
+                <option value="150" {% if selected_days == 150 %}selected{% endif %}>
+                    Últimos 150 dias
+                </option>
+            </select>
+        </div>
+
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+    </div>
+</div>

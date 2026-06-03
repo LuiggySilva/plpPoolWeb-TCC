@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block head %}
+    {{ form.media }}
+
+    <script src="https://cdn.jsdelivr.net/npm/taboverride@4"></script>
+    <link rel="stylesheet" href="{% static 'css/code_highlight_style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/taboverride_textarea.css' %}">
+    <style>
+        input:invalid,
+        textarea:invalid,
+        select:invalid {
+            border-color: #dc3545;
+        }
+
+        input:invalid:focus,
+        textarea:invalid:focus,
+        select:invalid:focus {
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
+{% endblock head %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Criar{% endif %} questão{% endblock title %}
+
+{% block content %}
+
+<div class="container mt-4 p-4 border rounded-3 bg-body-tertiary shadow-sm">
+    <h2 class="mb-4"><i class="bi bi-plus-circle"></i> {% if form.instance.pk %}Editar{% else %}Criar{% endif %} Questão</h2>
+
+    <form method="post" id="question-form">
+        {% csrf_token %}
+        
+        {% crispy form %}
+
+        <div class="card shadow-sm mb-4">
+            <h5 class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-patch-check"></i> Casos de Teste</span>
+                <button type="button" class="btn btn-sm btn-light" id="add-test-btn">
+                    <i class="bi bi-plus-circle"></i> Novo Teste
+                </button>
+            </h5>            
+            
+            <div class="card-body" id="test-formset-container">
+                <div class="alert alert-info border-0 small py-2 shadow-sm mb-3 d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                    <div>
+                        <span class="small"> Você pode adicionar até {{ max_tests }} testes no total, somando públicos e privados.</span> <br>
+                        <span class="small"> É realizada uma normalização automática para remover espaços em branco extras e padronizar quebras de linha. Ex: '   1 2 3\\r\\n' se torna '1 2 3\\n'</span>
+                    </div>
+                </div>
+
+                {{ formset.management_form }}
+                
+                {% if formset.non_form_errors %}
+                    <div class="alert alert-danger mt-3">
+                        {{ formset.non_form_errors }}
+                    </div>
+                {% endif %}
+
+                {% for test_form in formset %}
+                    <div class="test-form-row mb-3">
+                        {% for hidden in test_form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        
+                        {% crispy test_form formset_helper %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="w-100 text-center">
+            <a href="{% url 'questions:assistentstudent_list' %}" class="btn btn-outline-secondary btn-lg px-5"><i class="bi bi-arrow-left"></i> Voltar para Lista</a>
+            <button type="submit" class="btn btn-success btn-lg px-5">
+                <i class="bi bi-save"></i> Salvar Questão
+            </button>
+        </div>
+    </form>
+</div>
+
+<div id="empty-form-template" class="d-none">
+    {% crispy formset.empty_form formset_helper %}
+</div>
+
+{% endblock content %}
+
+{% block modal %}
+{% endblock modal %}
+
+{% block inline_js %}
+
+    <script>
+        new TomSelect("#id_tags", {
+            plugins: ['remove_button'],
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const addBtn = document.getElementById('add-test-btn');
+            const container = document.getElementById('test-formset-container');
+            const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+            const totalFormsInput = document.getElementById('id_tests-TOTAL_FORMS');
+
+            addBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const formCount = parseInt(totalFormsInput.value);
+                
+                const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formCount);
+                
+                container.insertAdjacentHTML('beforeend', newFormHtml);
+                
+                totalFormsInput.value = formCount + 1;
+            });
+        });
+    </script>
+    <script src="{% static 'js/taboverride_config.js' %}"></script>
+
+{% endblock inline_js %}

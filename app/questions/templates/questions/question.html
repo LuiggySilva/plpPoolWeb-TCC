@@ -1,181 +1,591 @@
 {% extends 'base.html' %}
-
-
 {% load static %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
+{% load highligh_code %}
 
 
 {% block head %}
     {{ form.media }}
     <script src="https://cdn.jsdelivr.net/npm/taboverride@4"></script>
-    <script src="{% static 'js/taboverride_config.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/taboverride_textarea.css' %}">
+    <link rel="stylesheet" href="{% static 'css/code_highlight_style.css' %}">
     <style>
-        #test-run-result {
-            cursor: pointer;
+        {% pygments_css %}
+    </style>
+    <style>
+        .btn-copy-code {
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+        }
+
+        .copy-feedback.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .w-md-100 {
+                width: 100% !important;
+            }
         }
     </style>
+    <link rel="stylesheet" href="{% static 'css/audit_style.css' %}">
 {% endblock head %}
 
-
-{% block title %}{{question.title}}{% endblock title %}
-
+{% block title %}{{ question.title }}{% endblock title %}
 
 {% block content %}
-    <!-- TODO compilar entrada e testes arbitrarios -->
-    <!-- TODO verificar se tem html/js/css no código/entradas/saidas/descriçao na hora da criação/sanitização -->
+    <div class="container-xl">
 
-    <div class="container-fluid">
-        <div id="question-info" class="rounded p-3 border bg-light-subtle">
-            <!-- TITULO -->
-            <h2 class="font-monospace"><i class="bi bi-braces"></i>&nbsp;{{ question.title }}</h2>
-            <!-- AUTOR | PERÍODO | TIPO | LINGUAGEM -->
-            <div class="d-flex w-100 justify-content-start mb-2">
-                <small class="me-4"><i class="bi bi-person-circle"></i>&nbsp;{{ question.author.name }}</small>
-                <small class="me-4"><i class="bi bi-calendar2-week"></i>&nbsp;{{ question.period }}</small>
-                {% if question.type == question.Types.BASIC %}
-                    <small class="me-4"><i class="bi bi-star-half"></i>&nbsp;{{ question.get_type_display }}</small>
-                {% else %}
-                    <small class="me-4"><i class="bi bi-star-fill"></i>&nbsp;{{ question.get_type_display }}</small>
-                {% endif %}
-                <small class="me-4"><i class="devicon-{{ question.language }}-plain"></i>&nbsp;{{ question.get_language_display }}</small>
+        {# Informações da questão #} 
+        <div id="question-info" class="rounded-3 p-4 border bg-body-tertiary shadow-sm mb-3">
+            <h2 class="font-monospace fw-bold text-primary mb-3">
+                <i class="bi bi-braces"></i>&nbsp;{{ question.title }}
+            </h2>
+            <div class="d-flex flex-wrap gap-4 mb-3 text-body-secondary">
+                <span><i class="bi bi-person-circle"></i>
+                    {% if question.author.github %}
+                        <a href="{{ question.author.github }}" title="Github" target="_blank" rel="noopener noreferrer">
+                            {{ question.author.name }}
+                        </a>
+                    {% else %}
+                        <span title="Sem Github">
+                            {{ question.author.name }}
+                        </span>
+                    {% endif %}
+                </span>
+                <span><i class="bi bi-calendar2-week"></i>&nbsp;{{ question.period }}</span>
+                <span>
+                    {% if question.type == question.Types.BASIC %}
+                        <i class="bi bi-star-half text-warning"></i>
+                    {% else %}
+                        <i class="bi bi-star-fill text-warning"></i>
+                    {% endif %}
+                    &nbsp;{{ question.get_type_display }}
+                </span>
+                <span><i class="devicon-{{ question.language_devicon }}-plain text-info"></i>&nbsp;{{ question.get_language_display }}</span>
             </div>
-            <!-- TAGS -->
-            <div class="d-flex flex-wrap gap-2 w-100 justify-content-start">
+            <div class="d-flex flex-wrap gap-2">
                 {% for tag in question.tags.all %}
-                    <small class="badge text-bg-secondary">
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle rounded-pill">
                         <i class="bi bi-tag"></i>&nbsp;{{ tag.name }}
-                    </small>
+                    </span>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- DESCRIÇÃO -->
-        <div id="question-description" class="rounded p-3 mt-2 border bg-light-subtle">
-            <p>{{ question.description }}</p>
-        </div>
+        {# Ações para usuários staff #}
+        {% if request.user.is_staff %}
+            <div class="mb-3">
+                <div class="d-flex flex-column flex-md-row gap-2 mb-2 justify-content-center justify-content-md-start">
+                    <button type="button"
+                            class="btn btn-secondary shadow-sm px-5 fw-bold w-100 w-md-auto"
+                            hx-get="{% url 'questions:question_history' question.id %}"
+                            hx-target="#question-content-area"
+                            data-bs-toggle="modal"
+                            data-bs-target="#questionHistoryModal">
+                        <i class="bi bi-clock-history me-2"></i>Histórico de Alterações
+                    </button>
 
-        <!-- CÓDIGO -->
-        <div id="question-code" class="rounded p-3 mt-2 border bg-light-subtle overflow-auto">
-            {{ question.get_code_highlighted|safe }}
-        </div>
+                    <button class="btn btn-secondary text-start py-3 px-4 rounded-3 d-flex justify-content-between align-items-center shadow-sm w-100 w-md-auto"
+                            data-bs-toggle="collapse"
+                            href="#collapseCompiler">
+                        <span>
+                            <i class="bi bi-pencil me-2"></i>Solicitar modificação
+                        </span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                
+                <div class="collapse mt-2" id="collapseCompiler">
+                    <div class="card card-body bg-body-tertiary border shadow-sm p-4">
+                        <div class="alert alert-warning border-0 small py-2 shadow-sm mb-3">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Um email será enviado para o autor da questão solicitando as modificações necessárias. Certifique-se de incluir detalhes claros sobre as mudanças desejadas.
+                        </div>
+                        <form method="post" action="{% url 'questions:question_feedback' question.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea id="feedback-request" name="feedback_text" class="form-control font-monospace" rows="6" placeholder="Descreva as modificações necessárias..."></textarea>
+                            </div>
 
-        <!-- ENTRADA/SAÍDA COMPILADOR -->
-        <a class="btn btn-info w-100 text-start mt-2 fw-bold" data-bs-toggle="collapse" href="#collapseCompiler" role="button" aria-expanded="false" aria-controls="collapseCompiler">
-            <i class="bi bi-terminal"></i>&nbsp;Compilador
-        </a>
-        <div class="collapse rounded p-3 mt-2 border bg-light-subtle overflow-auto" id="collapseCompiler">
-            <form method="post">
-                {% csrf_token %}
-                <div class="row">
-                    <div class="col-12 col-md-6">
-                        <ul class="list-group">
-                            <li class="list-group-item list-group-item-secondary fw-bold">
-                                <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
-                            </li>
-                            <li class="list-group-item">
-                                <textarea id="user-input-data" name="user_input_data" class="form-control textarea-not-resizable" rows="10" ></textarea>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-12 col-md-6 mt-4 mt-md-0">
-                        <ul class="list-group">
-                            <li class="list-group-item list-group-item-secondary fw-bold d-flex justify-content-between align-items-center">
-                                <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
-                                <span id="compiler-run-result" class="text-success" title="Executado com sucesso"><i class="bi bi-check-circle-fill"></i></span>
-                            </li>
-                            <li class="list-group-item">
-                                <textarea class="form-control textarea-not-resizable" rows="10" readonly></textarea>
-                            </li>
-                        </ul>
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success px-5 rounded-pill fw-bold">
+                                    <i class="bi bi-envelope"></i> Enviar feedback
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="text-center mt-3">
-                    <button type="submit" class="btn btn-success w-50"><i class="bi bi-play-fill"></i>&nbsp;Executar</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- TESTES PÚBLICOS E PRIVADOS -->
-        <div id="question-tests" class="rounded p-3 mt-2 border bg-light-subtle overflow-auto">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="font-monospace"><i class="bi bi-check-circle"></i>&nbsp;Testes</h3>
-                <button class="btn btn-primary"><i class="bi bi-play-fill"></i>&nbsp;Executar testes</button>
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <h4><i class="bi bi-unlock-fill"></i>&nbsp;Públicos</h4>
-                    <ul class="list-group">
-                        {% for test in public_tests.all %}
-                            <li class="list-group-item mb-2">
-                                <h6 class="font-monospace"><i class="bi bi-hash"></i>&nbsp;Teste {{ forloop.counter }}</h4>
-                                <ul class="list-group">
-                                    <li class="list-group-item list-group-item-light">
-                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.input_data }}</textarea>
-                                    </li>
-                                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
-                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
-                                        <span id="test-{{test.id}}-run-result" class="text-success" title="Executado com sucesso"><i class="bi bi-check-circle-fill"></i></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.output_data }}</textarea>
-                                    </li>
-                                </ul>
-                            </li>
-                        {% empty %}
-                            <li class="list-group-item">
-                                <div class="alert alert-info" role="alert">
-                                    Nenhum teste público cadastrado.
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
+        {% endif %}
+
+        {# Descrição da questão #}
+        <div id="question-description" class=" rounded-3 p-4 mb-3 border shadow-sm overflow-auto position-relative">
+            <h5 class="fw-bold mb-3 text-uppercase"><i class="bi bi-info-square"></i> Descrição</h5>
+            <div class="code-container preserve-format-wrap shadow-sm bg-dark" style="max-height: 400px;">{{ question.description }}</div>
+        </div>
+
+        {# Código da questão #}
+        <div class="rounded-3 p-4 mb-3 border shadow-sm overflow-auto position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-3 text-uppercase"><i class="bi bi-code"></i> Solução</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="copy-code-button" type="button" class="btn btn-sm btn-outline-light btn-copy-code" aria-label="Copiar código">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
                 </div>
-                <div class="col-12 col-md-6 mt-4 mt-md-0">
-                    <h4><i class="bi bi-lock-fill"></i>&nbsp;Privados</h4>
-                    <ul class="list-group">
-                        {% for test in private_tests.all %}
-                            <li class="list-group-item mb-2">
-                                <h6 class="font-monospace"><i class="bi bi-hash"></i>&nbsp;Teste {{ forloop.counter }}</h4>
-                                <ul class="list-group">
-                                    <li class="list-group-item list-group-item-light">
-                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Entrada</span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.input_data }}</textarea>
-                                    </li>
-                                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
-                                        <span><i class="bi bi-box-arrow-in-right"></i>&nbsp;Saída</span>
-                                        <span id="test-{{test.id}}-run-result" class="text-danger" title="Erro na execução"><i class="bi bi-x-octagon-fill"></i></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <textarea class="form-control textarea-not-resizable" rows="10" readonly>{{ test.output_data }}</textarea>
-                                    </li>
-                                </ul>
-                            </li>
-                        {% empty %}
-                            <li class="list-group-item">
-                                <div class="alert alert-info" role="alert">
-                                    Nenhum teste privado cadastrado.
+            </div>
+            <div class="code-container preserve-format mb-3" style="max-height: 500px;">{% get_code_highlighted question.language question.code %}</div>
+        </div>
+
+        <div class="mb-3">
+            <div class="alert alert-info border-0  py-2 shadow-sm mb-3 d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                <div>
+                    Todas execuções no compilador interativo e de testes são auditas e ficam registradas no sistema. Use com responsabilidade e evite enviar códigos que possam ser prejudiciais ou que violem as regras de conduta da plataforma.
+                </div>
+            </div>
+
+            {# Compilador Interativo #}
+            <button class="btn btn-dark w-100 text-start py-3 px-4 rounded-3 d-flex justify-content-between align-items-center shadow-sm" data-bs-toggle="collapse" href="#collapseFeedback">
+                <span><i class="bi bi-terminal-fill me-2"></i> Compilador Interativo</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            
+            <div class="collapse mt-2" id="collapseFeedback">
+                <div class="card card-body bg-body-tertiary border shadow-sm p-4">
+                    <form id="manual-run-form">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="test-label fw-bold small mb-1">Entrada (stdin)</label>
+                                <textarea id="stdin-input" name="user_input_data" 
+                                        class="form-control code-container preserve-format text-white w-100 bg-dark" 
+                                        rows="8" 
+                                        style="resize: none;"
+                                        placeholder="Digite as entradas aqui...">{{ input_preview }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-1">
+                                    <label class="test-label fw-bold small mb-0"> Saída (stdout)</label>
+                                    <label id="stdout-status" class="test-label fw-bold small mb-0"></label>
                                 </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                                <div id="stdout-container" class="form-control code-container preserve-format text-white w-100 bg-dark m-0 font-monospace p-3" 
+                                    style="height: 205px; overflow-y: auto; font-size: 0.9rem; border: 1px solid #333;">
+                                    <span class="text-secondary italic">Aguardando execução...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <!-- ID no botão para podermos mudar o texto para "Carregando..." -->
+                            <button type="submit" id="run-btn" class="btn btn-success px-5 rounded-pill fw-bold">
+                                <i class="bi bi-play-fill"></i> <span id="run-btn-text">EXECUTAR CÓDIGO</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+
+        <div id="question-tests" class="rounded-3 p-4 border bg-body shadow-sm">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <h3 class="font-monospace fw-bold m-0"><i class="bi bi-patch-check"></i> Casos de Teste</h3>
+                <button id="run-tests-btn" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-play-circle-fill"></i> <span id="run-tests-text">Rodar Todos os Testes</span>
+                </button>
+            </div>
+
+            <div class="row g-4">
+                {# Testes públicos da questão #}
+                <div class="col-lg-6">
+                    <h5 class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-unlock-fill text-success me-2"></i> Testes Públicos
+                    </h5>
+                    {% for test in public_tests.all %}
+                        <div class="card mb-3 border shadow-sm test-card" id="test-card-{{test.id}}">
+                            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                                <span class="fw-bold font-monospace">#{{ forloop.counter }}</span>
+                                <span id="test-status-{{test.id}}" class="text-secondary small fw-bold">
+                                    <i class="bi bi-dash-circle"></i> Aguardando...
+                                </span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-2 align-items-stretch">
+                                    <div class="col-12 col-md-6 d-flex">
+                                        <div class="w-100 d-flex flex-column">
+                                            <strong class="small text-info">Entrada:</strong>
+                                            <pre class="code-container preserve-format tests-inputs mt-1 p-2 bg-black flex-grow-1">{{ test.input_data }}</pre>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 d-flex">
+                                        <div class="w-100 d-flex flex-column">
+                                            <strong class="small text-danger">Saída Esperada:</strong>
+                                            <pre class="code-container preserve-format tests-inputs mt-1 p-2 bg-black flex-grow-1">{{ test.output_data }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# Collapse dos resultados dos testes públicos #}
+                                <div class="collapse mt-3" id="collapse-result-{{test.id}}">
+                                    <div class="border-top pt-2">
+                                        <strong class="small text-warning" id="test-actual-label-{{test.id}}">Saída:</strong>
+                                        <pre id="test-actual-{{test.id}}" class="code-container preserve-format tests-inputs mt-1 p-2 bg-black text-white"></pre>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-sm btn-link text-decoration-none p-0 mt-2 d-none" id="btn-details-{{test.id}}" data-bs-toggle="collapse" data-bs-target="#collapse-result-{{test.id}}">
+                                    Ver Detalhes da Execução <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted small">Nenhum teste público disponível.</p>
+                    {% endfor %}
+                </div>
+
+                {# Testes privados da questão #}
+                <div class="col-lg-6">
+                    <h5 class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-lock-fill text-danger me-2"></i> Testes Privados
+                    </h5>
+                    {% for test in private_tests.all %}
+                        <div class="card mb-3 border shadow-sm test-card" id="test-card-{{test.id}}">
+                            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                                <span class="fw-bold font-monospace">#{{ forloop.counter }}</span>
+                                <span id="test-status-{{test.id}}" class="text-secondary small fw-bold">
+                                    <i class="bi bi-dash-circle"></i> Aguardando...
+                                </span>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-2 align-items-stretch">
+                                    <div class="col-12 col-md-6 d-flex">
+                                        <div class="w-100 d-flex flex-column">
+                                            <strong class="small text-info">Entrada:</strong>
+                                            <pre class="code-container preserve-format tests-inputs mt-1 p-2 bg-black flex-grow-1">{{ test.input_data }}</pre>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 d-flex">
+                                        <div class="w-100 d-flex flex-column">
+                                            <strong class="small text-danger">Saída Esperada:</strong>
+                                            <pre class="code-container preserve-format tests-inputs mt-1 p-2 bg-black flex-grow-1">{{ test.output_data }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# Collapse dos resultados dos testes privados #}
+                                <div class="collapse mt-3" id="collapse-result-{{test.id}}">
+                                    <div class="border-top pt-2">
+                                        <strong class="small text-warning" id="test-actual-label-{{test.id}}">Saída:</strong>
+                                        <pre id="test-actual-{{test.id}}" class="code-container preserve-format tests-inputs mt-1 p-2 bg-black text-white"></pre>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-sm btn-link text-decoration-none p-0 mt-2 d-none" id="btn-details-{{test.id}}" data-bs-toggle="collapse" data-bs-target="#collapse-result-{{test.id}}">
+                                    Ver Detalhes da Execução <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted small">Nenhum teste privado disponível.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock content %}
 
 
 {% block modal %}
+
+    {% if request.user.is_staff %}
+        <div class="modal fade" id="questionHistoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div id="question-content-area" class="modal-content border-0">
+                    {% include "questions/question_history.html" %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock modal %}
 
 
 {% block inline_js %}
+    {# JS para botão de copiar código e injetar o CSRF token em todas requisições HTMX #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const copyButton = document.getElementById('copy-code-button');
+            const codeWrapper = document.querySelector('#question-code .code-wrapper .code');
+
+            const copyCode = async () => {
+                if (!codeWrapper) return;
+                const text = codeWrapper.innerText.trim();
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    console.error('Erro ao copiar código:', error);
+                }
+            };
+
+            if (copyButton) {
+                copyButton.addEventListener('click', copyCode);
+            }
+        });
+
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+    </script>
+
+    {# JS para execução do compilador interativo e dos testes #}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Elementos da Execução Manual
+            const runForm = document.getElementById('manual-run-form');
+            const runBtn = document.getElementById('run-btn');
+            const runBtnText = document.getElementById('run-btn-text');
+            const stdoutContainer = document.getElementById('stdout-container');
+            const stdoutStatus = document.getElementById('stdout-status');
+            const stdinInput = document.getElementById('stdin-input');
+
+            // Elementos da Validação (Testes)
+            const runTestsBtn = document.getElementById('run-tests-btn');
+            const runTestsText = document.getElementById('run-tests-text');
+
+            // URLs (Ajuste os nomes conforme seu urls.py)
+            const manualRunUrl = "{% url 'code_compiler:submit_manual_run' question.id %}"; 
+            const validationUrl = "{% url 'code_compiler:submit_validation' question.id %}";
+
+            const currentQuestionId = "{{ question.id|escapejs }}";
+            const activeActivityId = "{{ active_activity_id|default_if_none:'' }}";
+            
+            // --- LÓGICA DE RECUPERAÇÃO DE PÁGINA RECARREGADA ---
+            if (activeActivityId) {
+                const runningQuestionId = localStorage.getItem('running_question_context');
+                const isSameContext = (runningQuestionId === currentQuestionId);
+
+                setGlobalLoadingState(isSameContext ? "Recuperando execução em andamento...\n" : "⚠️ O servidor está processando código em outra questão...\n");
+                checkStatus(activeActivityId, isSameContext);
+            }
+
+            // --- EVENTO 1: EXECUÇÃO MANUAL ---
+            if (runForm) {
+                runForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await submitExecution(manualRunUrl, "MANUAL");
+                });
+            }
+
+            // --- EVENTO 2: VALIDAÇÃO DE TESTES ---
+            if (runTestsBtn) {
+                runTestsBtn.addEventListener('click', async function() {
+                    // Limpa estados de testes anteriores antes de rodar
+                    document.querySelectorAll('.test-card').forEach(card => {
+                        card.classList.remove('border-success', 'border-danger');
+                    });
+                    await submitExecution(validationUrl, "VALIDATION");
+                });
+            }
+
+            // --- FUNÇÃO CENTRAL DE SUBMISSÃO ---
+            async function submitExecution(targetUrl, executionType) {
+                const sourceCode = "{{ question.code|escapejs }}";
+                const questionId = "{{ question.id }}";
+                const language = "{{ question.language }}"; 
+                const inputs = stdinInput ? stdinInput.value : '';
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                setGlobalLoadingState("Enviando para o servidor...\n");
+                localStorage.setItem('running_question_context', currentQuestionId);
+
+                try {
+                    const response = await fetch(targetUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                        body: JSON.stringify({ language: language, code: sourceCode, inputs: inputs })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        if (response.status === 429 && data.activity_id) {
+                            if (stdoutContainer) stdoutContainer.innerText = data.error + "\nRetomando visualização...\n";
+                            checkStatus(data.activity_id, true);
+                            return;
+                        }
+                        throw new Error(data.error || "Erro ao enviar o código.");
+                    }
+
+                    if (stdoutContainer) stdoutContainer.innerText += "Aguardando container...\n";
+                    checkStatus(data.activity_id, true);
+
+                } catch (error) {
+                    if (stdoutStatus) renderLine(stdoutStatus, "<i class='bi bi-x-circle me-1'></i> FALHA", "text-danger", true);
+                    if (stdoutContainer) stdoutContainer.innerText = error.message;
+                    resetGlobalButtons();
+                    localStorage.removeItem('running_question_context');
+                }
+            }
+
+            // --- CONTROLE DE ESTADO (Bloqueia AMBOS os botões) ---
+            function setGlobalLoadingState(terminalMessage) {
+                if (runBtn) {
+                    runBtn.disabled = true;
+                    runBtnText.innerText = "EXECUTANDO...";
+                    runBtn.classList.replace('btn-success', 'btn-secondary');
+                }
+                if (runTestsBtn) {
+                    runTestsBtn.disabled = true;
+                    runTestsText.innerText = "PROCESSANDO...";
+                    runTestsBtn.classList.replace('btn-primary', 'btn-secondary');
+                }
+                if (stdoutContainer) stdoutContainer.innerText = terminalMessage;
+                if (stdoutStatus) stdoutStatus.innerHTML = ""; 
+            }
+
+            function resetGlobalButtons() {
+                if (runBtn) {
+                    runBtn.disabled = false;
+                    runBtnText.innerText = "EXECUTAR CÓDIGO";
+                    runBtn.classList.replace('btn-secondary', 'btn-success');
+                }
+                if (runTestsBtn) {
+                    runTestsBtn.disabled = false;
+                    runTestsText.innerText = "Rodar Todos os Testes";
+                    runTestsBtn.classList.replace('btn-secondary', 'btn-primary');
+                }
+            }
+
+            // --- POLLING E RENDERIZAÇÃO DO RESULTADO ---
+            function checkStatus(activityId, isSameContext) {
+                const fetchStatusUrl = "{% url 'code_compiler:check_activity_status' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', activityId);
+
+                let dots = 0;
+                const interval = setInterval(async () => {
+                    try {
+                        const res = await fetch(fetchStatusUrl);
+                        const data = await res.json();
+
+                        if (data.status === 'COMPLETED' || data.status === 'SYSTEM_ERROR') {
+                            clearInterval(interval);
+                            localStorage.removeItem('running_question_context'); 
+                            resetGlobalButtons();
+
+                            if (!isSameContext) {
+                                if (stdoutContainer) stdoutContainer.innerHTML = `<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>A execução da outra questão foi finalizada.</span>`;
+                                return;
+                            }
+
+                            // Verifica se a API indicou que foi uma validação
+                            if (data.activity_type === 'VALIDATION' || data.test_results) {
+                                renderValidationResults(data);
+                            } else {
+                                renderManualResults(data);
+                            }
+                            
+                        } else {
+                            // Feedback de carregamento
+                            dots = (dots + 1) % 4;
+                            const loadingText = `Processando no servidor${'.'.repeat(dots)}`;
+                            if (stdoutContainer) stdoutContainer.innerHTML = `<span class="text-info">${loadingText}</span>`;
+                            
+                            // Atualiza os status dos testes para "Executando..."
+                            document.querySelectorAll('[id^="test-status-"]').forEach(el => {
+                                if (el.innerText.includes("Aguardando")) {
+                                    el.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Executando...`;
+                                    el.className = "text-primary small fw-bold";
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        clearInterval(interval);
+                        localStorage.removeItem('running_question_context');
+                        if (stdoutContainer) stdoutContainer.innerHTML = `<span class="text-danger">Erro ao conectar.</span>`;
+                        resetGlobalButtons();
+                    }
+                }, 1000);
+            }
+
+            // --- RENDERIZAR RESULTADO MANUAL (Terminal) ---
+            function renderManualResults(data) {
+                if (!stdoutContainer) return;
+                stdoutContainer.innerHTML = ""; 
+                if (data.is_system_error) {
+                    renderLine(stdoutStatus, "<i class='bi bi-shield-exclamation me-1'></i> ERRO DE SISTEMA", "text-warning", true);
+                    renderLine(stdoutContainer, data.stderr || "Falha crítica.", "text-white-50");
+                } else if (data.verdict !== 'AC') {
+                    renderLine(stdoutStatus, `<i class='bi bi-x-octagon-fill me-1'></i>ERRO`, "text-danger", true);
+                    if (data.stderr) renderLine(stdoutContainer, data.stderr, "text-danger");
+                } else {
+                    renderLine(stdoutStatus, `<i class='bi bi-check-circle-fill me-1'></i>CONCLUÍDO (${data.delta?.toFixed(2) || 0}s)`, "text-success", true);
+                    renderLine(stdoutContainer, data.stdout || "(O código não imprimiu nada)", "text-white");
+                }
+            }
+
+            // --- RENDERIZAR RESULTADO DA VALIDAÇÃO (Test Cards) ---
+            function renderValidationResults(data) {
+                if (!data.test_results) return;
+
+                data.test_results.forEach(test => {
+                    const statusSpan = document.getElementById(`test-status-${test.test_id}`);
+                    const card = document.getElementById(`test-card-${test.test_id}`);
+                    const actualPre = document.getElementById(`test-actual-${test.test_id}`);
+                    const detailBtn = document.getElementById(`btn-details-${test.test_id}`);
+                    const actualLabel = document.getElementById(`test-actual-label-${test.test_id}`);
+
+                    if (!statusSpan) return;
+
+                    if (test.passed) {
+                        statusSpan.innerHTML = `<i class="bi bi-check-circle-fill"></i> Passou`;
+                        statusSpan.className = "text-success small fw-bold";
+                        card.classList.add('border-success');
+                    } else {
+                        statusSpan.innerHTML = `<i class="bi bi-x-circle-fill"></i> Falhou`;
+                        statusSpan.className = "text-danger small fw-bold";
+                        card.classList.add('border-danger');
+                    }
+
+                    // Popula a saída obtida
+                    if (test.stderr) {
+                        actualLabel.innerText = "Erro durante execução:";
+                        actualLabel.className = "small text-danger";
+                        actualPre.innerText = test.stderr;
+                    } else {
+                        actualLabel.innerText = "Saída:";
+                        actualLabel.className = "small text-warning";
+                        actualPre.innerText = test.actual_output || "(Sem saída)";
+                    }
+
+                    // Exibe o botão para abrir o collapse
+                    if (detailBtn) {
+                        detailBtn.classList.remove('d-none');
+                    }
+                });
+            }
+
+            function renderLine(container, text, className, isStatus=false) {
+                if (!container) return;
+                const div = document.createElement('div');
+                div.className = className;
+                div.innerText = text; // usando innerText pra evitar injeção HTML
+                if (isStatus) {
+                    container.innerHTML = "";
+                    div.innerHTML = text; // status usa icones HTML
+                }
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight; 
+            }
+
+            function resetButton() {
+                runBtn.disabled = false;
+                runBtnText.innerText = "EXECUTAR CÓDIGO";
+                runBtn.classList.replace('btn-secondary', 'btn-success');
+            }
+        });
+    </script>
+
+    <script src="{% static 'js/taboverride_config.js' %}"></script>
+    <script src="{% static 'js/htmx_scripts.js' %}"></script>
 {% endblock inline_js %}

@@ -1,0 +1,37 @@
+{% for period_id, is_active, period_name in periods %}
+    <tr>
+        <td class="fw-medium">{{ period_id }}</td>
+        <td class="text-start fw-medium"><span class="badge bg-primary rounded-pill">{{ period_name }}</span></td>
+        <td>
+            <div class="d-flex flex-column flex-md-row gap-2 gap-md-2 justify-content-center align-items-center">
+                <button class="btn btn-sm btn-outline-primary" 
+                        hx-get="{% url 'user:period_edit' period_id %}" 
+                        hx-target="#modalPeriodForm .modal-dialog"
+                        data-bs-target="#modalPeriodForm" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                
+                <button class="btn btn-sm btn-outline-danger" 
+                        hx-get="{% url 'user:period_delete' period_id %}" 
+                        hx-target="#modalPeriodDelete .modal-dialog"
+                        data-bs-target="#modalPeriodDelete" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-secondary" title="Alterações"
+                        hx-get="{% url 'user:period_history' period_id %}" 
+                        hx-target="#modalPeriodHistory .modal-dialog"
+                        data-bs-target="#modalPeriodHistory" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-clock-history"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="6" class="text-center">Nenhum período encontrado</td>
+    </tr>
+{% endfor %}
