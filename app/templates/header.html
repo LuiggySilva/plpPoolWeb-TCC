@@ -1,0 +1,45 @@
+<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 px-4 border-bottom bg-body-tertiary shadow-sm">
+    <div class="col-md-3 mb-2 mb-md-0">
+        <a href="{% url 'user:about' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none"> 
+            <i class="bi bi-code-slash fs-2 text-primary"></i>&nbsp;<span class="fs-4 font-monospace fw-bold">&nbsp;plpPoolWeb</span>
+        </a>
+    </div>
+    
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0 fw-medium {% if not request.user.is_authenticated %}invisible{% endif %}">
+        <li>
+            <a href="{% url 'questions:question_list' %}" class="nav-link px-2 {% if current_tab == 'question_list' %}text-primary{% else %}link-body-emphasis{% endif %}">
+                <i class="bi bi-list-ul"></i>&nbsp;Todas questões
+            </a>
+        </li>
+        <li>
+            {% if request.user.is_authenticated and request.user.is_staff %}
+                <a href="{% url 'user:professor_adminpage' %}" class="nav-link px-2 {% if current_tab == 'professor_adminpage' %}text-primary{% else %}link-body-emphasis{% endif %}">
+                    <i class="bi bi-person-lines-fill"></i>&nbsp;Administração
+                </a>
+            {% else %}
+                <a title="{{ request.user.name }}" href="{% url 'questions:assistentstudent_list' %}" class="nav-link px-2 {% if current_tab == 'assistentstudent_list' %}text-primary{% else %}link-body-emphasis{% endif %}">
+                    <i class="bi bi-person-lines-fill"></i>&nbsp;Minhas questões
+                </a>
+            {% endif %}
+        </li>
+    </ul>
+    
+    <div class="col-md-4 text-end d-flex justify-content-end align-items-center gap-2">
+        <button onclick="toggleTheme()" class="btn btn-outline-secondary border-0" title="Alternar tema claro/escuro">
+            <i id="theme-icon" class="bi bi-sun-fill fs-5"></i>
+        </button>
+
+        {% if request.user.is_authenticated %}
+            <a title="{{ request.user.name }}" href="{% url 'account_change_password' %}" class="btn btn-sm btn-outline-warning">
+                <i class="bi bi-arrow-repeat"></i>&nbsp;Alterar senha
+            </a>
+            <a href="{% url 'account_logout' %}" class="btn btn-sm btn-danger">
+                <i class="bi bi-box-arrow-left"></i>&nbsp;Sair
+            </a>
+        {% else %}
+            <a href="{% url 'account_login' %}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i>&nbsp;Login
+            </a>
+        {% endif %}
+    </div>
+</header>

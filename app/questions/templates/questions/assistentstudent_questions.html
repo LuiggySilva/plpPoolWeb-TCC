@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block head %}
+    {{ form.media }}
+{% endblock head %}
+
+{% block title %}Minhas Questões - plpPoolWeb{% endblock title %}
+
+{% block content %}
+    <div class="container-xl">
+        <div class="text-center">
+            <button class="btn btn-primary d-xxl-none mb-3 font-monospace shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#informationsOffcanvas">
+                <i class="bi bi-info-circle-fill"></i> Informações
+            </button>
+        </div>
+    
+        <div id="questions-container" class="row gap-4 justify-content-center">
+
+            <div class="offcanvas offcanvas-start d-xxl-none" tabindex="-1" id="informationsOffcanvas" aria-labelledby="informationsOffcanvasLabel">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title font-monospace fw-bold" id="informationsOffcanvasLabel">Informações</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+                </div>
+                <div class="offcanvas-body bg-body-tertiary">
+                    <div id="informations-mobile">
+                        <div class="d-grid mb-4">
+                            <a href="{% url 'questions:question_create' %}" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-plus-circle"></i>&nbsp;Nova questão
+                            </a>
+                        </div>
+                        {% include "questions/partials/assistentstudent_questions_info.html" with info=info only %}
+                    </div>
+                </div>
+            </div>
+            
+            <div id="informations" class="col-xxl-3 d-none d-xxl-block p-4 border rounded-3 bg-body-tertiary shadow-sm align-self-start">
+                <h4 class="text-center font-monospace fw-bold mb-3">
+                    <i class="bi bi-info-circle"></i> Informações
+                </h4>
+                <hr class="text-secondary opacity-25 mb-4">
+
+                <div class="d-grid mb-4">
+                    <a href="{% url 'questions:question_create' %}" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-plus-lg fw-bold"></i>&nbsp;Nova questão
+                    </a>
+                </div>
+
+                {% include "questions/partials/assistentstudent_questions_info.html" with info=info only %}
+            </div>
+            
+            <div id="questions" class="col-12 col-xxl-8 p-4 border rounded-3 bg-body-tertiary shadow-sm">
+                <h2 class="text-center font-monospace fw-bold mb-4 text-body-emphasis">Minhas Questões</h2>
+
+                <ul class="list-group list-group-flush border-top" id="assistentstudent-questions-list">
+                    {% include 'questions/partials/assistentstudent_questions_list.html' %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block modal %}
+{% endblock modal %}
+
+{% block inline_js %}
+    <script src="{% static 'js/htmx_scripts.js' %}"></script>
+
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+    </script>
+{% endblock inline_js %}

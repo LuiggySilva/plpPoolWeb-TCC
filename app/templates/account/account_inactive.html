@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Acesso Negado - plpPoolWeb{% endblock title %}
+
+{% block content %}
+    <div class="container d-flex flex-column align-items-center justify-content-center mt-5 mb-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-ban fs-1 text-danger"></i>
+            <h2 class="fw-bold font-monospace mt-2">Acesso Negado</h2>
+        </div>
+
+        <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card p-4 p-sm-5 border rounded-4 bg-body-tertiary shadow-sm text-center">
+                    <p class="fs-5 text-body-emphasis mb-3">Sua conta está inativa e não possui acesso ao sistema.</p>
+                    <p class="text-body-secondary mb-4">
+                        Em caso de dúvidas, contate o professor responsável pela disciplina.<br>
+                        Se você for um professor, entre em contato com o administrador.
+                    </p>
+                    
+                    <div class="mt-2">
+                        <a href="{% url 'account_login' %}" class="btn btn-primary px-4 shadow-sm">
+                            <i class="bi bi-arrow-left"></i> Voltar para o login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

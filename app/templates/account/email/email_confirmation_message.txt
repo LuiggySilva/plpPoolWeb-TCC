@@ -1,0 +1,12 @@
+Olá {{ user.name|default:user.email }},
+
+Você foi cadastrado no sistema plpPoolWeb como {{ user.get_role_display }} da disciplina "Paradigmas de Linguagens de Programação" do curso de Ciência da Computação da Universidade Federal de Campina Grande (UFCG).
+
+Para confirmar seu endereço de e-mail e ativar sua conta, clique no link abaixo:
+
+{{ activate_url }}
+
+Recomendamos que, após confirmar sua conta, você altere sua senha. Por padrão, sua senha inicial é igual ao número da sua matrícula.
+
+Atenciosamente,  
+Equipe plpPoolWeb

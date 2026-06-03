@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Verificação Enviada - plpPoolWeb{% endblock title %}
+
+{% block content %}
+    <div class="container d-flex flex-column align-items-center justify-content-center mt-5 mb-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-envelope-paper fs-1 text-primary"></i>
+            <h2 class="fw-bold font-monospace mt-2">Email de Verificação Enviado</h2>
+        </div>  
+        
+        <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card p-4 p-sm-5 border rounded-4 bg-body-tertiary shadow-sm text-center">
+                    <p class="fs-5 text-body-emphasis mb-3">Enviamos um link de confirmação para o seu e-mail.</p>
+                    <p class="text-body-secondary mb-0">
+                        Por favor, acesse sua caixa de entrada (ou pasta de spam) e siga as instruções.<br>
+                        Caso ocorra algum problema, contate o professor responsável.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,108 @@
+<div class="modal-content border-0 shadow">
+    <div class="modal-header border-bottom bg-body-tertiary">
+        <h1 class="modal-title fs-5 font-monospace fw-bold">
+            <i class="bi bi-clock-history text-secondary"></i> Histórico da Tag: <span class="text-primary">{{ tag.name }}</span>
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body p-4">
+        {% if history_records %}
+            <div class="table-responsive border rounded shadow-sm">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Data e Hora</th>
+                            <th>Usuário</th>
+                            <th>Ação</th>
+                            <th class="text-start w-50">Alterações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history_records %}
+                            <tr>
+                                <td class="text-start fw-medium text-body-secondary">
+                                    {{ record.history_date|date:"d/m/Y H:i" }}
+                                </td>
+                                
+                                <td>
+                                    {% if record.history_user %}
+                                        {{ record.history_user.name|default:record.history_user.email }}
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Sistema</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td>
+                                    {% if record.history_type == '+' %}
+                                        <span class="badge bg-success rounded-pill px-3">Criado</span>
+                                    {% elif record.history_type == '~' %}
+                                        <span class="badge bg-primary rounded-pill px-3">Modificado</span>
+                                    {% elif record.history_type == '-' %}
+                                        <span class="badge bg-danger rounded-pill px-3">Deletado</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-start">
+                                    {% if record.changes_list %}
+                                        <ul class="list-unstyled mb-0 small">
+                                            {% for change in record.changes_list %}
+                                                <li class="mb-1">
+                                                    <strong>{{ change.field }}:</strong> 
+                                                    <span class="text-body-secondary">{{ change.old|default:"-" }}</span> 
+                                                    <i class="bi bi-arrow-right mx-1 text-primary"></i> 
+                                                    <span class="fw-medium text-body">{{ change.new|default:"-" }}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% elif record.history_type == '+' %}
+                                        <span class="text-muted small fst-italic">Registro inicial</span>
+                                    {% else %}
+                                        <span class="text-muted small fst-italic">Sem alterações rastreadas</span>
+                                    {% endif %}
+
+                                    {% if record.history_change_reason %}
+                                        <div class="mt-2 text-muted small border-top pt-1">
+                                            <i class="bi bi-chat-left-text"></i> {{ record.history_change_reason }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-inbox text-secondary" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">Nenhum histórico encontrado para esta tag.</h5>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal-footer border-top bg-body-tertiary">
+        <div class="tags-spinner htmx-indicator text-center mb-2">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <div class="input-group style-select" style="width: 250px;">
+                <span class="input-group-text bg-body-tertiary small"><i class="bi bi-filter"></i></span>
+                <select name="days" 
+                        class="form-select form-select-sm" 
+                        hx-get="{% url 'questions:tag_history' tag.id %}" 
+                        hx-target="#modalTagHistory .modal-dialog" 
+                        hx-trigger="change"
+                        hx-indicator=".tags-spinner">
+                    <option value="30" {% if selected_days == 30 %}selected{% endif %}>Últimos 30 dias</option>
+                    <option value="60" {% if selected_days == 60 %}selected{% endif %}>Últimos 60 dias</option>
+                    <option value="150" {% if selected_days == 150 %}selected{% endif %}>Últimos 150 dias</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-secondary" data-bs-target="#modalTagList" data-bs-toggle="modal">
+            <i class="bi bi-arrow-left"></i> Voltar para Lista
+        </button>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-content border-0 shadow">
+    <div class="modal-header border-bottom bg-body-tertiary">
+        <h1 class="modal-title fs-5 font-monospace fw-bold">
+            <i class="bi bi-tag {% if action == 'edit' %}text-primary{% else %}text-success{% endif %}"></i> 
+            {% if action == 'edit' %}Editar{% else %}Salvar{% endif %} Período
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body p-4">
+        <form hx-post="{% if action == 'create' %}{% url 'user:period_create' %}{% else %}{% url 'user:period_edit' period.id %}{% endif %}" hx-target="#modalPeriodForm .modal-dialog">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                {{ period_form|crispy }}
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-secondary" data-bs-target="#modalPeriodList" data-bs-toggle="modal">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </button>
+                <button type="submit" class="btn btn-success fw-bold px-4">
+                    <i class="bi bi-floppy"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

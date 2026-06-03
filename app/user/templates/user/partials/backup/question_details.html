@@ -1,0 +1,54 @@
+{% load highligh_code %}
+
+<div class="question-details">
+    {# Autor #}
+    <div class="mb-3 p-2 border rounded bg-light-subtle">
+        <p class="small fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.65rem;">Autor</p>
+        <div class="row g-2 small">
+            <div class="col-12 col-md-6 overflow-auto text-nowrap">
+                <i class="bi bi-person"></i> {{ author.name }}
+            </div>
+            <div class="col-12 col-md-6 overflow-auto text-nowrap">
+                <i class="bi bi-envelope"></i> {{ author.email|default:"N/A" }}
+            </div>
+            <div class="col-12 col-md-6 overflow-auto text-nowrap">
+                <i class="bi bi-card-text"></i> {{ author.registration|default:"N/A" }}
+            </div>
+            <div class="col-12 col-md-6 overflow-auto text-nowrap">
+                <i class="bi bi-github"></i> {{ author.github|default:"N/A" }}
+            </div>
+        </div>
+    </div>
+
+    {# Meta / Badges #}
+    <div class="mb-3 d-flex flex-wrap gap-1">
+        <span class=" badge border-info-subtle d-inline-flex align-items-center gap-1 px-2 py-2 border"><i class="bi bi-code-slash"></i>{{ language }}</span>
+        <span class=" badge border-warning-subtle d-inline-flex align-items-center gap-1 px-2 py-2 border">
+            <i class="bi bi-calendar-check-fill"></i>{{ period }}
+        </span>
+        {% for tag in tags %}
+            <span class=" badge border-success-subtle d-inline-flex align-items-center gap-1 px-2 py-2 border">
+                <i class="bi bi-tag-fill"></i>
+                {% if tag.name %}
+                    {{ tag.name }}
+                {% else %}
+                    {{ tag }}
+                {% endif %}
+            </span>
+        {% endfor %}
+    </div>
+
+    {# Descrição #}
+    <p class="small fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.65rem;">Enunciado</p>
+    <div class="p-3 bg-body-tertiary border rounded mb-3 small" style="white-space: pre-wrap; max-height: 150px; overflow-y: auto;">{{ title }}</div>
+
+    <p class="small fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.65rem;">Descrição</p>
+    <div class="code-container preserve-format-wrap shadow-sm mb-3" style="max-height: 400px;">{{ description }}</div>
+
+    {# Código #}
+    <p class="small fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.65rem;">Código</p>
+    <div class="code-container preserve-format mb-3" style="max-height: 500px;">{% get_code_highlighted language_id code %}</div>
+
+    {# Testes (Inclui o outro partial) #}
+    {% include "user/partials/backup/tests_collapse.html" with tests=tests index=index type=type %}
+</div>

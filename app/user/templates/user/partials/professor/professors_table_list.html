@@ -1,0 +1,53 @@
+
+{% for professor in professors %}
+    <tr>
+        <td class="text-start fw-medium">{{ professor.id }}</td>
+        <td class="text-start fw-medium">{{ professor.name }}</td>
+        <td class="text-start text-muted">{{ professor.email }}</td>
+        <td>{{ professor.registration }}</td>
+        <td>
+            {% if professor.is_active %}
+                <i class="bi bi-check-circle-fill text-success fs-5" title="Permitido"></i>
+            {% else %}
+                <i class="bi bi-x-circle-fill text-danger fs-5" title="Não Permitido"></i>
+            {% endif %}
+        </td>
+        <td>
+            <div class="d-flex flex-column flex-md-row gap-2 gap-md-2 justify-content-center align-items-center">
+                <span {% if professor.is_superuser %}title="Não é permitido editar um superusuário" data-bs-toggle="tooltip"{% endif %}>
+                    <button class="btn btn-sm btn-outline-primary" 
+                            {% if professor.is_superuser %}disabled style="pointer-events: none;"{% endif %}
+                            hx-get="{% url 'user:professor_edit' professor.id %}" 
+                            hx-target="#modalProfessorForm .modal-dialog"
+                            data-bs-target="#modalProfessorForm" 
+                            data-bs-toggle="modal">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </span>
+
+                <span {% if professor.is_superuser %}title="Não é permitido excluir um superusuário" data-bs-toggle="tooltip"{% endif %}>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            {% if professor.is_superuser %}disabled style="pointer-events: none;"{% endif %}
+                            hx-get="{% url 'user:professor_delete' professor.id %}" 
+                            hx-target="#modalProfessorDelete .modal-dialog"
+                            data-bs-target="#modalProfessorDelete" 
+                            data-bs-toggle="modal">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </span>
+
+                <button class="btn btn-sm btn-outline-secondary" title="Alterações"
+                        hx-get="{% url 'user:professor_history' professor.id %}" 
+                        hx-target="#modalProfessorHistory .modal-dialog"
+                        data-bs-target="#modalProfessorHistory" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-clock-history"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="6" class="text-center">Nenhum professor encontrado</td>
+    </tr>
+{% endfor %}

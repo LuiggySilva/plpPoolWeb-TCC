@@ -1,0 +1,59 @@
+
+{% for assistent_student in assistent_students %}
+    <tr>
+        <td class="text-start fw-medium">{{ assistent_student.id }}</td>
+        <td class="text-start fw-medium">
+            {% if assistent_student.github %}
+                <a href="{{ assistent_student.github }}" title="Github">
+                    {{ assistent_student.name }}
+                </a>
+            {% else %}
+                <span title="Sem Github">
+                    {{ assistent_student.name }}
+                </span>
+            {% endif %}
+        </td>
+        <td class="text-start text-muted">{{ assistent_student.email }}</td>
+        <td>{{ assistent_student.registration }}</td>
+        <td><span class="badge bg-secondary">{{ assistent_student.period.name }}</span></td>
+        <td>
+            {% if assistent_student.is_active %}
+                <i class="bi bi-check-circle-fill text-success fs-5" title="Permitido"></i>
+            {% else %}
+                <i class="bi bi-x-circle-fill text-danger fs-5" title="Não Permitido"></i>
+            {% endif %}
+        </td>
+        <td>
+            <div class="d-flex flex-column flex-md-row gap-2 gap-md-2 justify-content-center align-items-center">
+                <button class="btn btn-sm btn-outline-primary" 
+                        hx-get="{% url 'user:assistentstudent_edit' assistent_student.id %}" 
+                        hx-target="#modalMonitorForm .modal-dialog"
+                        data-bs-target="#modalMonitorForm" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                
+                <button class="btn btn-sm btn-outline-danger" 
+                        hx-get="{% url 'user:assistentstudent_delete' assistent_student.id %}" 
+                        hx-target="#modalMonitorDelete .modal-dialog"
+                        data-bs-target="#modalMonitorDelete" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-secondary" title="Alterações"
+                        hx-get="{% url 'user:assistentstudent_history' assistent_student.id %}" 
+                        hx-target="#modalMonitorHistory .modal-dialog"
+                        data-bs-target="#modalMonitorHistory" 
+                        data-bs-toggle="modal">
+                    <i class="bi bi-clock-history"></i>
+                </button>
+            </div>
+
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="6" class="text-center">Nenhum monitor encontrado</td>
+    </tr>
+{% endfor %}

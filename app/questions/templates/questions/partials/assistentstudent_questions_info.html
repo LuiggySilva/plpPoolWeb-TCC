@@ -1,0 +1,89 @@
+{% if info.min_basic_cpp_questions and info.min_advanced_cpp_questions %}
+    <div class="card bg-transparent border-0 mb-4">
+        <h6 class="fw-bold d-flex align-items-center text-body-emphasis mb-3">
+            <i class="devicon-cplusplus-plain text-primary fs-5"></i>&nbsp; C / C++
+        </h6>
+
+        {% if info.cpp_deadline %}
+            <div class="alert alert-secondary py-2 px-3 small d-flex align-items-center mb-2 shadow-sm border-0">
+                <i class="bi bi-calendar-event-fill me-2 text-warning"></i>
+                <span><strong>Deadline:</strong> {{ info.cpp_deadline|date:"d/m/Y H:i" }}</span>
+            </div>
+        {% endif %}
+
+        <ul class="list-group list-group-flush small border rounded-3 overflow-hidden shadow-sm">
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Básicas
+                <span class="badge rounded-pill {% if info.basic_cpp_questions_count >= info.min_basic_cpp_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.basic_cpp_questions_count }} / {{ info.min_basic_cpp_questions }}
+                </span>
+            </li>
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Avançadas
+                <span class="badge rounded-pill {% if info.advanced_cpp_questions_count >= info.min_advanced_cpp_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.advanced_cpp_questions_count }} / {{ info.min_advanced_cpp_questions }}
+                </span>
+            </li>
+        </ul>
+    </div>
+{% endif %}
+
+{% if info.min_basic_haskell_questions and info.min_advanced_haskell_questions %}
+    <div class="card bg-transparent border-0 mb-4">
+        <h6 class="fw-bold d-flex align-items-center text-body-emphasis mb-3">
+            <i class="devicon-haskell-plain text-primary fs-5"></i>&nbsp; Haskell
+        </h6>
+
+        {% if info.haskell_deadline %}
+            <div class="alert alert-secondary py-2 px-3 small d-flex align-items-center mb-2 shadow-sm border-0">
+                <i class="bi bi-calendar-event-fill me-2 text-warning"></i>
+                <span><strong>Deadline:</strong> {{ info.haskell_deadline|date:"d/m/Y H:i" }}</span>
+            </div>
+        {% endif %}
+
+        <ul class="list-group list-group-flush small border rounded-3 overflow-hidden shadow-sm">
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Básicas
+                <span class="badge rounded-pill {% if info.basic_haskell_questions_count >= info.min_basic_haskell_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.basic_haskell_questions_count }} / {{ info.min_basic_haskell_questions }}
+                </span>
+            </li>
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Avançadas
+                <span class="badge rounded-pill {% if info.advanced_haskell_questions_count >= info.min_advanced_haskell_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.advanced_haskell_questions_count }} / {{ info.min_advanced_haskell_questions }}
+                </span>
+            </li>
+        </ul>
+    </div>
+{% endif %}
+
+{% if info.min_basic_prolog_questions and info.min_advanced_prolog_questions %}
+    <div class="card bg-transparent border-0 mb-4">
+        <h6 class="fw-bold d-flex align-items-center text-body-emphasis mb-3">
+            <i class="devicon-prolog-plain text-primary fs-5"></i>&nbsp; Prolog
+        </h6>
+
+        {% if info.prolog_deadline %}
+            <div class="alert alert-secondary py-2 px-3 small d-flex align-items-center mb-2 shadow-sm border-0">
+                <i class="bi bi-calendar-event-fill me-2 text-warning"></i>
+                <span><strong>Deadline:</strong> {{ info.prolog_deadline|date:"d/m/Y H:i" }}</span>
+            </div>
+        {% endif %}
+
+        <ul class="list-group list-group-flush small border rounded-3 overflow-hidden shadow-sm">
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Básicas
+                <span class="badge rounded-pill {% if info.basic_prolog_questions_count >= info.min_basic_prolog_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.basic_prolog_questions_count }} / {{ info.min_basic_prolog_questions }}
+                </span>
+            </li>
+            <li class="list-group-item bg-body d-flex justify-content-between align-items-center">
+                Avançadas
+                <span class="badge rounded-pill {% if info.advanced_prolog_questions_count >= info.min_advanced_prolog_questions %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {{ info.advanced_prolog_questions_count }} / {{ info.min_advanced_prolog_questions }}
+                </span>
+            </li>
+        </ul>
+    </div>
+{% endif %}

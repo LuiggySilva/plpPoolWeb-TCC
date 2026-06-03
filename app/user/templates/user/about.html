@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sobre - plpPoolWeb{% endblock title %}
+
+{% block content %}
+<div class="container d-flex flex-column align-items-center justify-content-center mt-4 mb-5">
+    <div class="col-12 col-lg-10">
+        <div class="card p-4 p-sm-5 border rounded-4 bg-body-tertiary shadow-sm text-center">
+            <div class="mb-4">
+                <i class="bi bi-code-slash fs-1 text-primary mb-2 d-inline-block"></i>
+                <h2 class="font-monospace fw-bold text-body-emphasis mb-0">plpPoolWeb</h2>
+                <hr class="w-25 mx-auto text-primary opacity-50 mt-3 mb-0">
+            </div>
+            
+            <div class="text-start mb-5">
+                <div class="d-flex align-items-start mb-3 gap-3">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 mt-1"></i>
+                    <p class="text-body-secondary mb-0" style="line-height: 1.7;">
+                        Esta aplicação web tem o objetivo de dar suporte aos professores e monitores da disciplina de <strong>Paradigma de Linguagens de Programação</strong> do curso de Ciência da Computação da UFCG. A disciplina atua com laboratórios práticos de programação em diferentes paradigmas.
+                    </p>
+                </div>
+                
+                <div class="d-flex align-items-start mb-3 gap-3">
+                    <i class="bi bi-laptop text-primary fs-5 mt-1"></i>
+                    <p class="text-body-secondary mb-0" style="line-height: 1.7;">
+                        A plataforma permite que os monitores submetam questões para compor os laboratórios. Para isso, é possível registrar detalhes como texto base, casos de teste e assuntos abordados, além de visualizar e comparar o material com questões de períodos anteriores.
+                    </p>
+                </div>
+
+                <div class="d-flex align-items-start gap-3">
+                    <i class="bi bi-person-workspace text-primary fs-5 mt-1"></i>
+                    <p class="text-body-secondary mb-0" style="line-height: 1.7;">
+                        Adicionalmente, a aplicação oferece uma visão gerencial para o professor da disciplina, permitindo filtrar o banco de questões por categorias e objetivos, bem como avaliar as submissões e sugerir modificações aos monitores.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-5 bg-body rounded-3 p-3 border shadow-sm d-inline-flex flex-column align-items-center">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Desenvolvido por</h6>
+                <a href="https://github.com/LuiggySilva" target="_blank" rel="noopener noreferrer" class="btn d-flex align-items-center gap-2">
+                    <i class="bi bi-github fs-5"></i>
+                    <span class="fw-bold">@LuiggySilva</span>
+                </a>
+            </div>
+
+            <hr class="w-75 mx-auto text-secondary opacity-25 mb-5">
+
+            <h5 class="fw-bold text-secondary mb-4 text-uppercase small">
+                <i class="bi bi-stack text-primary me-2"></i>Stack Tecnológico Principal
+            </h5>
+
+            <div class="row row-cols-2 row-cols-md-4 g-4 mb-5 text-center">
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-python-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">Python</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-django-plain fs-1 mb-2"></i>
+                        <span class="small fw-semibold">Django</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-postgresql-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">PostgreSQL <br><small class="text-muted fw-normal">(Prod)</small></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-sqlite-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">SQLite3 <br><small class="text-muted fw-normal">(Dev)</small></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-redis-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">Redis</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-docker-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">Docker & Compose</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-poetry-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">Poetry</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 bg-body rounded border shadow-sm h-100 d-flex flex-column align-items-center justify-content-center">
+                        <i class="devicon-vscode-plain colored fs-1 mb-2"></i>
+                        <span class="small fw-semibold">VSCode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

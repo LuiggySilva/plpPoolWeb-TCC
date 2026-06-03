@@ -1,0 +1,160 @@
+<div class="modal-content border-0">
+    <div class="modal-header border-bottom bg-body-tertiary">
+        <h1 class="modal-title fs-5 font-monospace fw-bold"><i class="bi bi-clock-history text-primary"></i> Histórico de Alterações</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body p-4">
+        {% if system_settings_history %}
+            <div class="audit-timeline">
+                {% for record in system_settings_history %}
+                    <div class="audit-item">
+
+                        <div class="audit-marker">
+                            {% if record.history_type == '+' %}
+                                <i class="bi bi-plus-circle-fill text-success"></i>
+                            {% elif record.history_type == '~' %}
+                                <i class="bi bi-pencil-fill text-primary"></i>
+                            {% elif record.history_type == '-' %}
+                                <i class="bi bi-trash-fill text-danger"></i>
+                            {% endif %}
+                        </div>
+
+                        <div class="audit-content card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">
+                                            {% if record.history_type == '+' %}
+                                                Configuração criada
+                                            {% elif record.history_type == '~' %}
+                                                Configuração modificada
+                                            {% else %}
+                                                Configuração removida
+                                            {% endif %}
+                                        </h6>
+
+                                        <small class="text-muted">
+                                            {{ record.history_date|date:"d/m/Y H:i:s" }}
+                                        </small>
+                                    </div>
+
+                                    <div>
+                                        {% if record.history_user %}
+                                            <span class="badge bg-warning text-dark">
+                                                {{ record.history_user.name }}<i class="bi bi-dash"></i>{{record.history_user.email}}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">
+                                                Sistema
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+
+                                {% if record.changes_list %}
+                                    <div class="mt-3">
+                                        {% for change in record.changes_list %}
+                                            <div class="border rounded p-3 mb-2 bg-body-tertiary">
+
+                                                <div class="fw-semibold small mb-2 text-primary-emphasis">
+                                                    {{ change.field }}
+                                                </div>
+                                                <div class="small">
+                                                    {% if change.is_textarea %}
+                                                        <div class="mb-2">
+                                                            <span class="badge bg-danger-subtle text-danger border fw-medium text-start p-2 d-block">
+                                                                <pre class="mb-0 overflow-auto w-100">{{ change.old_display|default:change.old|default:"—" }}</pre>
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="text-center mb-2">
+                                                            <i class="bi bi-arrow-down text-primary"></i>
+                                                        </div>
+
+                                                        <div>
+                                                            <span class="badge bg-success-subtle text-success border fw-medium text-start p-2 d-block">
+                                                                <pre class="mb-0 overflow-auto w-100">{{ change.new_display|default:change.new|default:"—" }}</pre>
+                                                            </span>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="flex-grow-1">
+                                                                <span class="badge bg-danger-subtle text-danger border fw-medium text-start p-2">
+                                                                    {{ change.old_display|default:change.old|default:"—" }}
+                                                                </span>
+                                                            </div>
+
+                                                            <div class="text-primary flex-shrink-0">
+                                                                <i class="bi bi-arrow-right"></i>
+                                                            </div>
+
+                                                            <div class="flex-grow-1">
+                                                                <span class="badge bg-success-subtle text-success border fw-medium text-start p-2">
+                                                                    {{ change.new_display|default:change.new|default:"—" }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if record.history_change_reason %}
+                                    <div class="mt-3 small text-muted border-top pt-2">
+                                        <i class="bi bi-chat-left-text"></i>
+                                        {{ record.history_change_reason }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-clock-history display-4 text-muted"></i>
+                <p class="mt-3 text-muted">
+                    Nenhum histórico encontrado para os últimos {{ selected_days }} dias.
+                </p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="modal-footer border-top bg-body-tertiary">
+        <div class="d-flex flex-column flex-md-row justify-content-end align-items-center w-100 gap-3">
+            <div class="audit-spinner htmx-indicator text-center mb-2">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+
+            <div class="input-group style-select w-100 w-md-auto" style="max-width: 250px;">
+                <span class="input-group-text bg-body-tertiary small"> <i class="bi bi-filter"></i></span>
+
+                <select name="days" class="form-select form-select-sm"
+                    hx-get="{% url 'user:professor_adminpage' %}"
+                    hx-target="#{{ system_settings_content_area }}"
+                    hx-trigger="change"
+                    hx-header="history_type: system_settings_audit"
+                    hx-indicator=".audit-spinner">
+
+                    <option value="30" {% if selected_days == 30 %}selected{% endif %}>
+                        Últimos 30 dias
+                    </option>
+
+                    <option value="60" {% if selected_days == 60 %}selected{% endif %}>
+                        Últimos 60 dias
+                    </option>
+
+                    <option value="150" {% if selected_days == 150 %}selected{% endif %}>
+                        Últimos 150 dias
+                    </option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+</div>

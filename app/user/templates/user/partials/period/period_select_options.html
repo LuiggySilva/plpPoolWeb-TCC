@@ -1,0 +1,8 @@
+<select name="active_period" id="id_active_period" class="form-select" hx-swap-oob="true">
+    <option value="">---------</option>
+    {% for period_id, is_active, period_name in periods %}
+        <option value="{{ period_id }}" {% if is_active %}selected{% endif %}>
+            {{ period_name }}
+        </option>
+    {% endfor %}
+</select>

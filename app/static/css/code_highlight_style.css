@@ -1,0 +1,72 @@
+/* Container base para tudo que for código/texto formatado */
+.code-container {
+    font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+    background-color: #1e1e1e !important;
+    color: #efefef;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    tab-size: 4;
+    position: relative;
+}
+
+.preserve-format {
+    /* white-space: pre; */
+    overflow-x: auto; 
+    overflow-y: auto;
+    display: block;
+    margin: 0;
+}
+
+.preserve-format-wrap {
+    white-space: pre-wrap; 
+    word-break: break-word;
+    overflow-y: auto;
+}
+
+
+.highlight {
+    background: transparent !important;
+    margin: 0;
+}
+
+.highlight pre {
+    white-space: pre;
+    margin: 0;
+    padding: 0;
+}
+
+
+.code-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.code-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+.code-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.tests-inputs {
+    height: 120px !important; 
+    font-size: 0.75rem !important; 
+    overflow: auto !important;
+    margin-bottom: 0;
+
+    display: block;
+    width: 100%;
+}
+
+.test-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.test-card .card-body {
+    flex-grow: 1;
+}
